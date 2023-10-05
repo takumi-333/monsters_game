@@ -121,6 +121,14 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    public void UpdateStatusWindowDead(Monster pMonster)
+    {
+        pMonster.GetStatusWindow().GetComponent<Outline>().effectColor = Color.red;
+        pMonster.GetStatusWindow().transform.Find("NameText").GetComponent<TextMeshProUGUI>().color = Color.red;
+        pMonster.GetStatusWindow().transform.Find("HpText").GetComponent<TextMeshProUGUI>().color = Color.red;
+        pMonster.GetStatusWindow().transform.Find("MpText").GetComponent<TextMeshProUGUI>().color = Color.red;
+    }
+
     // 出現するモンスターを出現確率から決定
     public void ChooseMonsterByWeight() 
     {
@@ -464,10 +472,7 @@ public class BattleManager : MonoBehaviour
                                 } else {
                                     num_pMonster -= 1;
                                     pMonsters.Remove(action_order[0].defender);
-                                    action_order[0].defender.GetStatusWindow().GetComponent<Outline>().effectColor = Color.red;
-                                    action_order[0].defender.GetStatusWindow().transform.Find("NameText").GetComponent<TextMeshProUGUI>().color = Color.red;
-                                    action_order[0].defender.GetStatusWindow().transform.Find("HpText").GetComponent<TextMeshProUGUI>().color = Color.red;
-                                    action_order[0].defender.GetStatusWindow().transform.Find("MpText").GetComponent<TextMeshProUGUI>().color = Color.red;
+                                    UpdateStatusWindowDead(action_order[0].defender);
                                 }
                                 action_order.Remove(action_order[0].defender.GetAction());
                                 // このターン以降の攻撃対象の更新処理
