@@ -36,7 +36,7 @@ public class BattleManager : MonoBehaviour
     // ATTACK時に使用する変数
     private int select_monster;
     private List<Monster> select_monsters;
-    private float cursor_blink_rate = 1.0f;
+    private float cursor_blink_rate = 0.5f;
     private int selecter = 0;
     
 
@@ -44,7 +44,9 @@ public class BattleManager : MonoBehaviour
     private int scene_step = 0;
     private int action_step = 0;
     private List<Monster> action_order;
-    // private List<Action> actions;
+    private float damage_blink_rate = 0.5f;
+    private double damage_blink_time = 0;
+
 
     public enum CommandType
     {
@@ -98,6 +100,7 @@ public class BattleManager : MonoBehaviour
             pos = new Vector3(-250+166.7f*i, 150, 0);
             status_window.transform.localPosition = pos;
             status_windows.Add(status_window);
+            pMonsters[i].SetImage(status_window.transform.Find("MonsterImage").GetComponent<RawImage>());
         }
 
         for (int i = 0; i < num_pMonster; i++) {
@@ -262,39 +265,43 @@ public class BattleManager : MonoBehaviour
             case 1:
                 ChooseMonsterByWeight();
                 monster_tmp = new Monster(monster_param);
-                enemy_monsters.Add(monster_tmp);
                 enemy_images[0].enabled = true;
                 enemy_images[0].texture = Resources.Load<Texture2D> (monster_param.image_path);
                 enemy_images[0].transform.localPosition = pos_pattern1[0];
+                monster_tmp.SetImage(enemy_images[0].GetComponent<RawImage>());
+                enemy_monsters.Add(monster_tmp);
                 break;
             case 2:
                 for (int i=0; i<2; i++) {
                     ChooseMonsterByWeight();
                     monster_tmp = new Monster(monster_param);
-                    enemy_monsters.Add(monster_tmp);
                     enemy_images[i].enabled= true;
                     enemy_images[i].texture = Resources.Load<Texture2D> (monster_param.image_path);
                     enemy_images[i].transform.localPosition = pos_pattern2[i];
+                    monster_tmp.SetImage(enemy_images[i].GetComponent<RawImage>());
+                    enemy_monsters.Add(monster_tmp);
                 }
                 break;
             case 3:
                 for (int i=0; i<3; i++) {
                     ChooseMonsterByWeight();
                     monster_tmp = new Monster(monster_param);
-                    enemy_monsters.Add(monster_tmp);
                     enemy_images[i].enabled= true;
                     enemy_images[i].texture = Resources.Load<Texture2D> (monster_param.image_path);
                     enemy_images[i].transform.localPosition = pos_pattern3[i];
+                    monster_tmp.SetImage(enemy_images[i].GetComponent<RawImage>());
+                    enemy_monsters.Add(monster_tmp);
                 }
                 break;
             case 4:
                 for (int i=0; i<4; i++) {
                     ChooseMonsterByWeight();
                     monster_tmp = new Monster(monster_param);
-                    enemy_monsters.Add(monster_tmp);
                     enemy_images[i].enabled= true;
                     enemy_images[i].texture = Resources.Load<Texture2D> (monster_param.image_path);
                     enemy_images[i].transform.localPosition = pos_pattern4[i];
+                    monster_tmp.SetImage(enemy_images[i].GetComponent<RawImage>());
+                    enemy_monsters.Add(monster_tmp);
                 }
                 break;
         }
@@ -327,7 +334,6 @@ public class BattleManager : MonoBehaviour
 
     void Update() 
     {
-        turn_wait_time -= Time.deltaTime;
         Vector3 mousePos;
         switch (SceneMode) {
             case SceneType.SELECT:
@@ -355,7 +361,7 @@ public class BattleManager : MonoBehaviour
                 // カーソルの点滅処理
                 _time += Time.deltaTime;
                 var repeatValue = Mathf.Repeat((float)_time, cursor_blink_rate);
-                enemy_images[select_monster].transform.Find("Cursor").gameObject.SetActive(repeatValue >= 0.5f);
+                enemy_images[select_monster].transform.Find("Cursor").gameObject.SetActive(repeatValue >= cursor_blink_rate/2);
 
                 // クリック時の処理
                 if (Input.GetMouseButtonDown(0)) {
@@ -395,6 +401,8 @@ public class BattleManager : MonoBehaviour
                                 action_order = SetActionOrder();
                                 scene_step = 0;
                                 action_step = 0;
+                                turn_wait_time = 1.0f;
+                                Debug.Log(action_order[action_step].param.name_ja + "の攻撃");
                                 SceneMode = SceneType.PROCESS;
                                 break;
                             // まだ全員の行動が決まっていないとき
@@ -406,7 +414,6 @@ public class BattleManager : MonoBehaviour
                                     enemy_images[i].transform.Find("Cursor").gameObject.SetActive(false);
                                 }
                                 SceneMode = SceneType.SELECT;
-                                Debug.Log("JUMP TO SELECT MODE");
                                 break;
                             }
                         }
@@ -415,25 +422,32 @@ public class BattleManager : MonoBehaviour
                 FocusEnemy(mousePos);
                 break;
             case SceneType.PROCESS:
-                if (!(turn_wait_time > 0))  {
-                    switch (scene_step) {
-                        // 行動者宣言
-                        case 0: 
+                turn_wait_time -= Time.deltaTime;
+                switch (scene_step) {
+                    // 行動者宣言
+                    case 0:
+                        if (!(turn_wait_time > 0)) {
                             scene_step++;
-                            // Debug.Log(action_order[action_step]);
-                            // Debug.Log(actions[action_order[action_step]]);
                             turn_wait_time = 1.0f;
-                            break;
-                        // アクション後処理
-                        case 1:
-                            scene_step++;
-                            Debug.Log("攻撃者:" + action_order[action_step].param.name_en);
                             action_order[action_step].GetAction().HandleAction();
-                            // actions[action_order[action_step]].HandleAction(enemy_monsters, pMonsters);
                             UpdateStatusWindow();
+                        }  
+                        break;
+                    // アクション後処理
+                    case 1:
+                        // 被ダメージ者の点滅処理
+                        damage_blink_time += Time.deltaTime;
+                        var damageBlinkRepeatValue = Mathf.Repeat((float)damage_blink_time, damage_blink_rate);
+                        action_order[action_step].GetAction().defender.GetImage().enabled = damageBlinkRepeatValue >= damage_blink_rate/2;
+
+                        if (!(turn_wait_time > 0)) {
+                            action_order[action_step].GetAction().defender.GetImage().enabled = true;
+                            scene_step++;
                             turn_wait_time = 1.0f;
-                            break;
-                        case 2:
+                        }  
+                        break;
+                    case 2:
+                        if (!(turn_wait_time > 0)) {
                             scene_step = 0;
                             action_step++;
                             if (action_step >= num_monster + num_pMonster) {
@@ -442,9 +456,11 @@ public class BattleManager : MonoBehaviour
                                     command_blocks[i].SetActive(true);
                                 }
                                 SceneMode = SceneType.SELECT;
+                                break;
                             }
-                            break;
-                    }
+                            Debug.Log(action_order[action_step].param.name_ja + "の攻撃");
+                        }
+                        break;
                 }
                 break;
             default:
