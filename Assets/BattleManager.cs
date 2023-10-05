@@ -14,7 +14,7 @@ public class BattleManager : MonoBehaviour
     private List<RawImage> enemy_images = new List<RawImage>();
 
     // player's monster info
-    private int[] pMonster_id_list = {0, 2, 0, 1};
+    private int[] pMonster_id_list = {0, 1, 2, 3};
     private int num_pMonster = 4;
     // private List<MonsterData.Param> pMonsters = new List<MonsterData.Param>();
     private List<Monster> pMonsters = new List<Monster>();
@@ -42,8 +42,8 @@ public class BattleManager : MonoBehaviour
 
     // PROCESS時に使用する変数
     private int scene_step = 0;
-    private int action_step = 0;
-    private List<Monster> action_order;
+    private List<Action> action_order;
+    private List<Action> done_actions;
     private float damage_blink_rate = 0.5f;
     private double damage_blink_time = 0;
 
@@ -64,6 +64,7 @@ public class BattleManager : MonoBehaviour
         SPECIAL,
         ESCAPE,
         PROCESS,
+        END,
     }
 
     public string[] command_block_str = {"attack", "item", "special", "escape"};
@@ -101,6 +102,7 @@ public class BattleManager : MonoBehaviour
             status_window.transform.localPosition = pos;
             status_windows.Add(status_window);
             pMonsters[i].SetImage(status_window.transform.Find("MonsterImage").GetComponent<RawImage>());
+            pMonsters[i].SetStatusWindow(status_window);
         }
 
         for (int i = 0; i < num_pMonster; i++) {
@@ -114,9 +116,17 @@ public class BattleManager : MonoBehaviour
     public void UpdateStatusWindow()
     {
         for (int i = 0; i < num_pMonster; i++) {
-            status_windows[i].transform.Find("HpText").GetComponent<TextMeshProUGUI>().text = $"HP: {pMonsters[i].param.hp}";
-            status_windows[i].transform.Find("MpText").GetComponent<TextMeshProUGUI>().text = $"MP: {pMonsters[i].param.mp}";
+            pMonsters[i].GetStatusWindow().transform.Find("HpText").GetComponent<TextMeshProUGUI>().text = $"HP: {pMonsters[i].param.hp}";
+            pMonsters[i].GetStatusWindow().transform.Find("MpText").GetComponent<TextMeshProUGUI>().text = $"MP: {pMonsters[i].param.mp}";
         }
+    }
+
+    public void UpdateStatusWindowDead(Monster pMonster)
+    {
+        pMonster.GetStatusWindow().GetComponent<Outline>().effectColor = Color.red;
+        pMonster.GetStatusWindow().transform.Find("NameText").GetComponent<TextMeshProUGUI>().color = Color.red;
+        pMonster.GetStatusWindow().transform.Find("HpText").GetComponent<TextMeshProUGUI>().color = Color.red;
+        pMonster.GetStatusWindow().transform.Find("MpText").GetComponent<TextMeshProUGUI>().color = Color.red;
     }
 
     // 出現するモンスターを出現確率から決定
@@ -245,7 +255,7 @@ public class BattleManager : MonoBehaviour
         
         // set Monsters
         //無駄な処理多いからforループにしたいね
-        num_monster = Random.Range(1,4);
+        num_monster = Random.Range(4,4);
 
         GameObject enemy_image_prefab = Resources.Load<GameObject>("EnemyImage");
         for (int i = 0; i < num_monster; i++) {
@@ -269,6 +279,7 @@ public class BattleManager : MonoBehaviour
                 enemy_images[0].texture = Resources.Load<Texture2D> (monster_param.image_path);
                 enemy_images[0].transform.localPosition = pos_pattern1[0];
                 monster_tmp.SetImage(enemy_images[0].GetComponent<RawImage>());
+                monster_tmp.isEnemy = true;
                 enemy_monsters.Add(monster_tmp);
                 break;
             case 2:
@@ -279,6 +290,7 @@ public class BattleManager : MonoBehaviour
                     enemy_images[i].texture = Resources.Load<Texture2D> (monster_param.image_path);
                     enemy_images[i].transform.localPosition = pos_pattern2[i];
                     monster_tmp.SetImage(enemy_images[i].GetComponent<RawImage>());
+                    monster_tmp.isEnemy = true;
                     enemy_monsters.Add(monster_tmp);
                 }
                 break;
@@ -290,6 +302,7 @@ public class BattleManager : MonoBehaviour
                     enemy_images[i].texture = Resources.Load<Texture2D> (monster_param.image_path);
                     enemy_images[i].transform.localPosition = pos_pattern3[i];
                     monster_tmp.SetImage(enemy_images[i].GetComponent<RawImage>());
+                    monster_tmp.isEnemy = true;
                     enemy_monsters.Add(monster_tmp);
                 }
                 break;
@@ -301,6 +314,7 @@ public class BattleManager : MonoBehaviour
                     enemy_images[i].texture = Resources.Load<Texture2D> (monster_param.image_path);
                     enemy_images[i].transform.localPosition = pos_pattern4[i];
                     monster_tmp.SetImage(enemy_images[i].GetComponent<RawImage>());
+                    monster_tmp.isEnemy = true;
                     enemy_monsters.Add(monster_tmp);
                 }
                 break;
@@ -309,14 +323,14 @@ public class BattleManager : MonoBehaviour
     }
 
 
-    public List<Monster> SetActionOrder() 
+    public List<Action> SetActionOrder() 
     {
-        List<Monster> _action_order = new List<Monster>();
+        List<Action> _action_order = new List<Action>();
         for (int i = 0; i < num_pMonster; i++) {
-            _action_order.Add(pMonsters[i]);
+            _action_order.Add(pMonsters[i].GetAction());
         }
         for (int i=0; i<num_monster; i++) {
-            _action_order.Add(enemy_monsters[i]);
+            _action_order.Add(enemy_monsters[i].GetAction());
         }
         return _action_order;
     }
@@ -399,10 +413,10 @@ public class BattleManager : MonoBehaviour
                                 }
                                 SetActions();
                                 action_order = SetActionOrder();
+                                done_actions = new List<Action>();
                                 scene_step = 0;
-                                action_step = 0;
                                 turn_wait_time = 1.0f;
-                                Debug.Log(action_order[action_step].param.name_ja + "の攻撃");
+                                Debug.Log(action_order[0].attacker.param.name_ja + "の攻撃");
                                 SceneMode = SceneType.PROCESS;
                                 break;
                             // まだ全員の行動が決まっていないとき
@@ -429,7 +443,8 @@ public class BattleManager : MonoBehaviour
                         if (!(turn_wait_time > 0)) {
                             scene_step++;
                             turn_wait_time = 1.0f;
-                            action_order[action_step].GetAction().HandleAction();
+                            action_order[0].HandleAction();
+                            Debug.Log(action_order[0].attacker.param.name_ja+"から"+action_order[0].defender.param.name_ja +"への攻撃");
                             UpdateStatusWindow();
                         }  
                         break;
@@ -438,19 +453,54 @@ public class BattleManager : MonoBehaviour
                         // 被ダメージ者の点滅処理
                         damage_blink_time += Time.deltaTime;
                         var damageBlinkRepeatValue = Mathf.Repeat((float)damage_blink_time, damage_blink_rate);
-                        action_order[action_step].GetAction().defender.GetImage().enabled = damageBlinkRepeatValue >= damage_blink_rate/2;
+                        action_order[0].defender.GetImage().enabled = damageBlinkRepeatValue >= damage_blink_rate/2;
 
                         if (!(turn_wait_time > 0)) {
-                            action_order[action_step].GetAction().defender.GetImage().enabled = true;
+                            action_order[0].defender.GetImage().enabled = true;
                             scene_step++;
                             turn_wait_time = 1.0f;
+
+                            // 攻撃対象の敵が死んでいたとき
+                            if (action_order[0].defender.isDead()) {
+                                // 敵だった場合
+                                if (action_order[0].defender.isEnemy) {
+                                    num_monster -= 1;
+                                    action_order[0].defender.GetImage().gameObject.SetActive(false);
+                                    enemy_monsters.Remove(action_order[0].defender);
+                                    enemy_images.Remove(action_order[0].defender.GetImage());
+                                //味方だった場合
+                                } else {
+                                    num_pMonster -= 1;
+                                    pMonsters.Remove(action_order[0].defender);
+                                    UpdateStatusWindowDead(action_order[0].defender);
+                                }
+                                action_order.Remove(action_order[0].defender.GetAction());
+                                // このターン以降の攻撃対象の更新処理
+                                for (int i = 1; i < action_order.Count; i++) {
+                                    if (action_order[i].defender == action_order[0].defender) {
+                                        if (!(action_order[i].attacker.isEnemy)) {
+                                            if (enemy_monsters.Count != 0){
+                                                action_order[i].defender = enemy_monsters[0];
+                                            }
+                                        } else {
+                                            if (pMonsters.Count != 0) {
+                                                action_order[i].defender = pMonsters[0];
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }  
                         break;
                     case 2:
                         if (!(turn_wait_time > 0)) {
+                            done_actions.Add(action_order[0]);
+                            action_order.RemoveAt(0);
                             scene_step = 0;
-                            action_step++;
-                            if (action_step >= num_monster + num_pMonster) {
+                            if (num_monster == 0) {
+                                Debug.Log("勝利");
+                                SceneMode = SceneType.END;
+                            }else if (action_order.Count == 0) {
                                 Debug.Log("ターン処理終了");
                                 for (int i = 0; i < 4; i++) {
                                     command_blocks[i].SetActive(true);
@@ -458,7 +508,7 @@ public class BattleManager : MonoBehaviour
                                 SceneMode = SceneType.SELECT;
                                 break;
                             }
-                            Debug.Log(action_order[action_step].param.name_ja + "の攻撃");
+                            Debug.Log(action_order[0].attacker.param.name_ja + "の攻撃");
                         }
                         break;
                 }

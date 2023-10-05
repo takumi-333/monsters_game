@@ -8,5 +8,8 @@ public class EnemyAction : Action
 
     public override void HandleAction() {
         defender.param.hp -= attacker.param.atk;
+        if (defender.param.hp < 0) {
+            defender.param.hp = 0;
+        }
     }
 }
