@@ -7,9 +7,11 @@ using TMPro;
 public class BattleManager : MonoBehaviour
 {
     private double _time;
-    private double turn_wait_time = 0;
+    
     GameObject Screen;
     private MonsterData monster_data;
+    private TextMeshProUGUI battleMessage1;
+    private TextMeshProUGUI battleMessage2;
 
     private List<RawImage> enemy_images = new List<RawImage>();
 
@@ -31,6 +33,8 @@ public class BattleManager : MonoBehaviour
     //仮のボタン、これを押すと戦闘開始
     private GameObject start_button;
 
+
+    // シーンの制御をするための変数
     private SceneType SceneMode = SceneType.SELECT; 
 
     // ATTACK時に使用する変数
@@ -38,14 +42,19 @@ public class BattleManager : MonoBehaviour
     private List<Monster> select_monsters;
     private float cursor_blink_rate = 0.5f;
     private int selecter = 0;
-    
 
     // PROCESS時に使用する変数
-    private int scene_step = 0;
+    private int battle_scene_step = 0;
     private List<Action> action_order;
     private List<Action> done_actions;
     private float damage_blink_rate = 0.5f;
     private double damage_blink_time = 0;
+    private double turn_wait_time = 0;
+
+    // END時に使用する変数
+    private int end_scene_step = 0;
+    private double end_wait_time = 0;
+    
 
 
     public enum CommandType
@@ -65,6 +74,7 @@ public class BattleManager : MonoBehaviour
         ESCAPE,
         PROCESS,
         END,
+        ANOTHER,
     }
 
     public string[] command_block_str = {"attack", "item", "special", "escape"};
@@ -76,6 +86,12 @@ public class BattleManager : MonoBehaviour
         start_button = GameObject.Find("GenerateButton");
         monster_data = Resources.Load("monster_data") as MonsterData;
         Screen = GameObject.Find("BackgroundImage");
+        battleMessage1 = GameObject.Find("BattleMessage1").GetComponent<TextMeshProUGUI>();
+        battleMessage2 = GameObject.Find("BattleMessage2").GetComponent<TextMeshProUGUI>();
+        battleMessage1.enabled = false;
+        battleMessage2.enabled = false;
+
+        
     }
 
     // status windowもmonsterのパラメータもセットする関数
@@ -106,7 +122,7 @@ public class BattleManager : MonoBehaviour
         }
 
         for (int i = 0; i < num_pMonster; i++) {
-            status_windows[i].transform.Find("NameText").GetComponent<TextMeshProUGUI>().text = pMonsters[i].param.name_en;
+            status_windows[i].transform.Find("NameText").GetComponent<TextMeshProUGUI>().text = pMonsters[i].param.name_ja;
             status_windows[i].transform.Find("MonsterImage").GetComponent<RawImage>().texture = Resources.Load<Texture2D>(pMonsters[i].param.image_path);
         }
 
@@ -177,6 +193,9 @@ public class BattleManager : MonoBehaviour
         switch (command_id) {
             case 0:
                 SceneMode = SceneType.ATTACK;
+                Vector3 sw_pos = pMonsters[selecter].GetStatusWindow().transform.position;
+                sw_pos.y -= 5;
+                pMonsters[selecter].GetStatusWindow().transform.position = sw_pos;
                 if (selecter == 0) {
                     select_monsters = new List<Monster>();
                 }
@@ -320,17 +339,24 @@ public class BattleManager : MonoBehaviour
                 break;
         }
         Destroy(start_button);
+
+        selecter = 0;
     }
 
 
     public List<Action> SetActionOrder() 
     {
-        List<Action> _action_order = new List<Action>();
-        for (int i = 0; i < num_pMonster; i++) {
-            _action_order.Add(pMonsters[i].GetAction());
+        List <Monster> all_monsters = new List<Monster>();
+        for (int i = 0; i < pMonsters.Count; i++) {
+            all_monsters.Add(pMonsters[i]);
         }
-        for (int i=0; i<num_monster; i++) {
-            _action_order.Add(enemy_monsters[i].GetAction());
+        for (int i = 0; i < enemy_monsters.Count; i++) {
+            all_monsters.Add(enemy_monsters[i]);
+        }
+        all_monsters.Sort((m1,m2) => m2.param.sp - m1.param.sp);
+        List<Action> _action_order = new List<Action>();
+        for (int i = 0; i < all_monsters.Count; i++) {
+            _action_order.Add(all_monsters[i].GetAction());
         }
         return _action_order;
     }
@@ -381,8 +407,11 @@ public class BattleManager : MonoBehaviour
                 if (Input.GetMouseButtonDown(0)) {
                     mousePos = Input.mousePosition;
                     // ATTACKをやめるときの処理
+                    Vector3 sw_pos;
                     if (ClickCommandBlock(mousePos) == 0) {
-
+                        sw_pos = pMonsters[selecter].GetStatusWindow().transform.position;
+                        sw_pos.y += 5;
+                        pMonsters[selecter].GetStatusWindow().transform.position = sw_pos;
                         // 遷移処理
                         for (int i = 0; i < 4; i++) {
                             command_blocks[i].SetActive(true);
@@ -395,12 +424,11 @@ public class BattleManager : MonoBehaviour
                     } else {
                         int enemy_id = ClickEnemy(mousePos);
                         if (enemy_id >= 0) {
+                            sw_pos = pMonsters[selecter].GetStatusWindow().transform.position;
+                            sw_pos.y += 5;
+                            pMonsters[selecter].GetStatusWindow().transform.position = sw_pos;
                             selecter++;
-                            // if (enemy_id != select_monster) {
-                            //     Debug.Log("Error: click place is different from cursor place!");
-                            // }
                             // 遷移処理
-
                             // 行動順序とそれぞれの行動を決定
                             select_monsters.Add(enemy_monsters[enemy_id]);
 
@@ -414,9 +442,11 @@ public class BattleManager : MonoBehaviour
                                 SetActions();
                                 action_order = SetActionOrder();
                                 done_actions = new List<Action>();
-                                scene_step = 0;
+                                battle_scene_step = 0;
+                                battleMessage1.enabled = true;
                                 turn_wait_time = 1.0f;
                                 Debug.Log(action_order[0].attacker.param.name_ja + "の攻撃");
+                                battleMessage1.text = action_order[0].attacker.param.name_ja  + "の攻撃！";
                                 SceneMode = SceneType.PROCESS;
                                 break;
                             // まだ全員の行動が決まっていないとき
@@ -437,14 +467,16 @@ public class BattleManager : MonoBehaviour
                 break;
             case SceneType.PROCESS:
                 turn_wait_time -= Time.deltaTime;
-                switch (scene_step) {
+                switch (battle_scene_step) {
                     // 行動者宣言
                     case 0:
                         if (!(turn_wait_time > 0)) {
-                            scene_step++;
+                            battle_scene_step++;
                             turn_wait_time = 1.0f;
-                            action_order[0].HandleAction();
-                            Debug.Log(action_order[0].attacker.param.name_ja+"から"+action_order[0].defender.param.name_ja +"への攻撃");
+                            action_order[0].HandleAction(battleMessage2);
+                            // battleMessage2.text = action_order[0].defender.param.name_ja + "は" + 
+                            // action_order[0].attacker.param.atk.ToString() + "ダメージを受けた！";
+                            battleMessage2.enabled = true;
                             UpdateStatusWindow();
                         }  
                         break;
@@ -457,7 +489,10 @@ public class BattleManager : MonoBehaviour
 
                         if (!(turn_wait_time > 0)) {
                             action_order[0].defender.GetImage().enabled = true;
-                            scene_step++;
+                            battle_scene_step++;
+                            battleMessage1.enabled = false;
+                            battleMessage2.enabled = false;
+
                             turn_wait_time = 1.0f;
 
                             // 攻撃対象の敵が死んでいたとき
@@ -496,19 +531,56 @@ public class BattleManager : MonoBehaviour
                         if (!(turn_wait_time > 0)) {
                             done_actions.Add(action_order[0]);
                             action_order.RemoveAt(0);
-                            scene_step = 0;
+                            battle_scene_step = 0;
+
+                            // 敵を全滅させたとき
                             if (num_monster == 0) {
-                                Debug.Log("勝利");
+                                battleMessage1.text = "戦いに勝利した！";
+                                battleMessage1.enabled = true;
                                 SceneMode = SceneType.END;
-                            }else if (action_order.Count == 0) {
+                                end_scene_step = 0;
+                                break;
+                            }
+                            // 味方が全滅したとき
+                            else if (num_pMonster == 0) {
+                                battleMessage1.text = "全滅してしまった！";
+                                battleMessage1.enabled = true;
+                                SceneMode = SceneType.END;
+                                end_scene_step = 0;
+                                break;
+                            }
+                            // アクションが全て終わったとき
+                            else if (action_order.Count == 0) {
                                 Debug.Log("ターン処理終了");
                                 for (int i = 0; i < 4; i++) {
                                     command_blocks[i].SetActive(true);
                                 }
                                 SceneMode = SceneType.SELECT;
                                 break;
+                            } 
+                            else {
+                                Debug.Log(action_order[0].attacker.param.name_ja + "の攻撃");
+                                battleMessage1.text = action_order[0].attacker.param.name_ja + "の攻撃";
+                                battleMessage1.enabled = true;
+                                turn_wait_time = 1.0f;
                             }
-                            Debug.Log(action_order[0].attacker.param.name_ja + "の攻撃");
+                        }
+                        break;
+                }
+                break;
+            case SceneType.END:
+                end_wait_time -= Time.deltaTime;
+                switch (end_scene_step) {
+                    // battle endに突入
+                    case 0:
+                        end_scene_step++;
+                        end_wait_time = 1.0f;
+                        break;
+                    case 1:
+                        if (!(end_wait_time > 0)) {
+                            battleMessage1.enabled = false;
+                            // scene遷移
+                            SceneMode = SceneType.ANOTHER;
                         }
                         break;
                 }
