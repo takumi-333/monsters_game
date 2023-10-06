@@ -347,12 +347,16 @@ public class BattleManager : MonoBehaviour
     public List<Action> SetActionOrder() 
     {
         List <Monster> all_monsters = new List<Monster>();
-        List<Action> _action_order = new List<Action>();
-        for (int i = 0; i < num_pMonster; i++) {
-            _action_order.Add(pMonsters[i].GetAction());
+        for (int i = 0; i < pMonsters.Count; i++) {
+            all_monsters.Add(pMonsters[i]);
         }
-        for (int i=0; i<num_monster; i++) {
-            _action_order.Add(enemy_monsters[i].GetAction());
+        for (int i = 0; i < enemy_monsters.Count; i++) {
+            all_monsters.Add(enemy_monsters[i]);
+        }
+        all_monsters.Sort((m1,m2) => m2.param.sp - m1.param.sp);
+        List<Action> _action_order = new List<Action>();
+        for (int i = 0; i < all_monsters.Count; i++) {
+            _action_order.Add(all_monsters[i].GetAction());
         }
         return _action_order;
     }
