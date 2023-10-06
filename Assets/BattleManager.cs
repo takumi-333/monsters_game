@@ -77,7 +77,7 @@ public class BattleManager : MonoBehaviour
         ANOTHER,
     }
 
-    public string[] command_block_str = {"こうげき", "どうぐ", "とくぎ", "にげる"};
+    private string[] command_block_str;
 
     // Start is called before the first frame update
     void Start()
@@ -90,8 +90,7 @@ public class BattleManager : MonoBehaviour
         battleMessage2 = GameObject.Find("BattleMessage2").GetComponent<TextMeshProUGUI>();
         battleMessage1.enabled = false;
         battleMessage2.enabled = false;
-
-        
+        command_block_str = new string[]{"こうげき", "どうぐ", "とくぎ", "にげる"};
     }
 
     // status windowもmonsterのパラメータもセットする関数
@@ -269,6 +268,7 @@ public class BattleManager : MonoBehaviour
 
         for (int i = 0; i < 4; i++) {
             command_blocks[i].transform.localPosition = command_block_pos[i];
+            Debug.Log(command_block_str[i]);
             command_blocks[i].transform.Find("CommandText").GetComponent<TextMeshProUGUI>().text = command_block_str[i];
         }
         
