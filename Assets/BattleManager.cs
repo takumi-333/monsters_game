@@ -10,13 +10,14 @@ public class BattleManager : MonoBehaviour
     
     GameObject Screen;
     private MonsterData monster_data;
+    private ActionData action_data;
     private TextMeshProUGUI battleMessage1;
     private TextMeshProUGUI battleMessage2;
 
     private List<RawImage> enemy_images = new List<RawImage>();
 
     // player's monster info
-    private int[] pMonster_id_list = {0, 1, 2, 3};
+    private int[] pMonster_id_list = {3, 3, 3, 6};
     private int num_pMonster = 4;
     // private List<MonsterData.Param> pMonsters = new List<MonsterData.Param>();
     private List<Monster> pMonsters = new List<Monster>();
@@ -85,6 +86,7 @@ public class BattleManager : MonoBehaviour
         command_window = GameObject.Find("CommandWindow");
         start_button = GameObject.Find("GenerateButton");
         monster_data = Resources.Load("monster_data") as MonsterData;
+        action_data = Resources.Load("action_data") as ActionData;
         Screen = GameObject.Find("BackgroundImage");
         battleMessage1 = GameObject.Find("BattleMessage1").GetComponent<TextMeshProUGUI>();
         battleMessage2 = GameObject.Find("BattleMessage2").GetComponent<TextMeshProUGUI>();
@@ -343,7 +345,6 @@ public class BattleManager : MonoBehaviour
         selecter = 0;
     }
 
-
     public List<Action> SetActionOrder() 
     {
         List <Monster> all_monsters = new List<Monster>();
@@ -364,11 +365,11 @@ public class BattleManager : MonoBehaviour
     public void SetActions()
     {
         for (int i = 0; i < num_pMonster; i++) {
-            pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], 0));
+            pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], action_data.sheets[0].list.Find(action=> action.id == 1)));
         }
         for (int i=0; i<num_monster; i++) {
             int r = Random.Range(0, num_pMonster-1);
-            enemy_monsters[i].SetAction(new EnemyAction(enemy_monsters[i], pMonsters[r], 0));
+            enemy_monsters[i].SetAction(new EnemyAction(enemy_monsters[i], pMonsters[r], action_data.sheets[0].list.Find(action=> action.id == 0)));
         }
     }
 

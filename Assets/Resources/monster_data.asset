@@ -85,7 +85,7 @@ MonoBehaviour:
       name_ja: "\u30DE\u30B8\u30C3\u30AF\u30B9\u30BF\u30FC"
       name_en: magicstar
       hp: 40
-      mp: 999
+      mp: 500
       atk: 12
       def: 4
       sp: 200
