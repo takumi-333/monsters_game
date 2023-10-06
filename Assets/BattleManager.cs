@@ -77,7 +77,7 @@ public class BattleManager : MonoBehaviour
         ANOTHER,
     }
 
-    public string[] command_block_str = {"attack", "item", "special", "escape"};
+    public string[] command_block_str = {"こうげき", "どうぐ", "とくぎ", "にげる"};
 
     // Start is called before the first frame update
     void Start()
@@ -585,8 +585,52 @@ public class BattleManager : MonoBehaviour
                         break;
                 }
                 break;
+            
+            case SceneType.ITEM:
+                if (Input.GetMouseButtonDown(0)) {
+                    mousePos = Input.mousePosition;
+                    // ITEMをやめるときの処理
+                    if (ClickCommandBlock(mousePos) == 1) {
+                        // 遷移処理
+                        for (int i = 0; i < 4; i++) {
+                            command_blocks[i].SetActive(true);
+                        }
+                        SceneMode = SceneType.SELECT;
+                        break;
+                    }
+                }
+                break;
+            case SceneType.SPECIAL:
+                if (Input.GetMouseButtonDown(0)) {
+                    mousePos = Input.mousePosition;
+                    // ITEMをやめるときの処理
+                    if (ClickCommandBlock(mousePos) == 2) {
+                        // 遷移処理
+                        for (int i = 0; i < 4; i++) {
+                            command_blocks[i].SetActive(true);
+                        }
+                        SceneMode = SceneType.SELECT;
+                        break;
+                    }
+                }
+                break;
+            case SceneType.ESCAPE:
+            if (Input.GetMouseButtonDown(0)) {
+                    mousePos = Input.mousePosition;
+                    // ITEMをやめるときの処理
+                    if (ClickCommandBlock(mousePos) == 3) {
+                        // 遷移処理
+                        for (int i = 0; i < 4; i++) {
+                            command_blocks[i].SetActive(true);
+                        }
+                        SceneMode = SceneType.SELECT;
+                        break;
+                    }
+                }
+                break;
             default:
                 break;
         }
     }
 }
+
