@@ -10,6 +10,7 @@ public class BattleManager : MonoBehaviour
     
     private GameObject Screen;
     private Canvas second_canvas;
+    private SecondCanvasManager scm;
     private MonsterData monster_data;
     private SkillData skill_data;
     private TextMeshProUGUI battleMessage1;
@@ -85,14 +86,11 @@ public class BattleManager : MonoBehaviour
     {
         command_window = GameObject.Find("CommandWindow");
         start_button = GameObject.Find("GenerateButton");
-        // second_window = GameObject.Find("SecondWindow");
-        
         monster_data = Resources.Load("monster_data") as MonsterData;
         skill_data = Resources.Load("skill_data") as SkillData;
         Screen = GameObject.Find("BackgroundImage");
-
         second_canvas = Screen.transform.Find("SecondCanvas").GetComponent<Canvas>();
-        Debug.Log(second_canvas);
+        scm = new SecondCanvasManager(second_canvas);
         battleMessage1 = GameObject.Find("BattleMessage1").GetComponent<TextMeshProUGUI>();
         battleMessage2 = GameObject.Find("BattleMessage2").GetComponent<TextMeshProUGUI>();
         battleMessage1.enabled = false;
