@@ -10,9 +10,15 @@ public class Monster : MonsterData.Param
     private Action action;
     private RawImage image;
     private GameObject status_window;
+    public List<Skill> skills;
+    public int max_hp;
+    public int max_mp;
 
     public Monster(MonsterData.Param param) {
         this.param =  param.ShallowCopy();
+        max_hp = param.hp;
+        max_mp = param.mp;
+        skills = new List<Skill>();
     }
 
     public void SetAction(Action action) {
@@ -38,15 +44,26 @@ public class Monster : MonsterData.Param
         return false;
     }
 
-    public void SetStatusWindow(GameObject status_window) {
+    public void SetStatusWindow(GameObject status_window) 
+    {
         this.status_window = status_window;
     }
 
-    public GameObject GetStatusWindow() {
+    public GameObject GetStatusWindow() 
+    {
         if (isEnemy) {
             return null;
         } else {
             return status_window;
+        }
+    }
+
+    public void SetSkills(List<int> skill_ids, SkillData skill_data) 
+    {
+        Skill skill;
+        for (int i = 0; i < skill_ids.Count; i++) {
+            skill = new Skill(skill_data.sheets[0].list.Find(skill=> skill.id == skill_ids[i]));
+            skills.Add(skill);
         }
     }
 }
