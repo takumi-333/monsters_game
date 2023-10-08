@@ -6,7 +6,7 @@ using TMPro;
 
 public class PlayerAction : Action
 {
-    public PlayerAction(Monster attacker, Monster defender, SkillData.Param skill_param) : base(attacker, defender, skill_param){}
+    public PlayerAction(Monster attacker, Monster defender, Skill skill) : base(attacker, defender, skill){}
 
     // public override void HandleAction(TextMeshProUGUI battleMessage) {
     //     int total_damage = CalDamage();

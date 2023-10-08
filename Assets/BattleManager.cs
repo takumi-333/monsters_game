@@ -57,6 +57,8 @@ public class BattleManager : MonoBehaviour
     private int end_scene_step = 0;
     private double end_wait_time = 0;
     
+    // 仮に使用
+    private List<List<int>> pMonster_skill_ids;
 
 
     public enum CommandType
@@ -96,6 +98,17 @@ public class BattleManager : MonoBehaviour
         battleMessage1.enabled = false;
         battleMessage2.enabled = false;
         command_block_str = new string[]{"こうげき", "どうぐ", "とくぎ", "にげる"};
+
+        // 仮の形式
+        pMonster_skill_ids = new List<List<int>>();
+        List<int> pMonster1_skill_ids = new List<int>(){0,1,2,3};
+        pMonster_skill_ids.Add(pMonster1_skill_ids);
+        List<int> pMonster2_skill_ids = new List<int>(){0,1,2,4,5};
+        pMonster_skill_ids.Add(pMonster2_skill_ids);
+        List<int> pMonster3_skill_ids = new List<int>(){0,1,2,5,6,7};
+        pMonster_skill_ids.Add(pMonster3_skill_ids);
+        List<int> pMonster4_skill_ids = new List<int>(){0,8,9,13};
+        pMonster_skill_ids.Add(pMonster4_skill_ids);
     }
 
     // status windowもmonsterのパラメータもセットする関数
@@ -108,6 +121,7 @@ public class BattleManager : MonoBehaviour
         for (int i = 0; i < num_pMonster; i++) {
             pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == pMonster_id_list[i]);
             monster = new Monster(pMonster_param);
+            monster.SetSkills(pMonster_skill_ids[i], skill_data);
             pMonsters.Add(monster);
         }
 
@@ -369,11 +383,14 @@ public class BattleManager : MonoBehaviour
     public void SetActions()
     {
         for (int i = 0; i < num_pMonster; i++) {
-            pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], skill_data.sheets[0].list.Find(action=> action.id == 1)));
+            //仮にrandom決定
+            int r = Random.Range(0, pMonsters[i].skills.Count);
+            // pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], new Skill(skill_data.sheets[0].list.Find(action=> action.id == 1))));
+            pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], pMonsters[i].skills[r]));
         }
         for (int i=0; i<num_monster; i++) {
             int r = Random.Range(0, num_pMonster-1);
-            enemy_monsters[i].SetAction(new EnemyAction(enemy_monsters[i], pMonsters[r], skill_data.sheets[0].list.Find(action=> action.id == 0)));
+            enemy_monsters[i].SetAction(new EnemyAction(enemy_monsters[i], pMonsters[r], new Skill(skill_data.sheets[0].list.Find(action=> action.id == 0))));
         }
     }
 
