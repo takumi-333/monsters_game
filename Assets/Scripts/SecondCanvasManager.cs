@@ -14,7 +14,6 @@ public class SecondCanvasManager
     private GameObject escape_cross;
     private int page;
 
-
     // コンストラクタ
     public SecondCanvasManager(Canvas canvas) 
     {
