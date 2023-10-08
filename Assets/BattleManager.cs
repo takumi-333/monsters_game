@@ -41,6 +41,7 @@ public class BattleManager : MonoBehaviour
 
     // ATTACK時に使用する変数
     private int select_monster;
+    private List<Skill> select_skills;
     private List<Monster> select_monsters;
     private float cursor_blink_rate = 0.5f;
     private int selecter = 0;
@@ -59,6 +60,7 @@ public class BattleManager : MonoBehaviour
     
     // 仮に使用
     private List<List<int>> pMonster_skill_ids;
+    private Skill default_attack;
 
 
     public enum CommandType
@@ -101,14 +103,16 @@ public class BattleManager : MonoBehaviour
 
         // 仮の形式
         pMonster_skill_ids = new List<List<int>>();
-        List<int> pMonster1_skill_ids = new List<int>(){0,1,2,3};
+        List<int> pMonster1_skill_ids = new List<int>(){1,2,3};
         pMonster_skill_ids.Add(pMonster1_skill_ids);
-        List<int> pMonster2_skill_ids = new List<int>(){0,1,2,4,5};
+        List<int> pMonster2_skill_ids = new List<int>(){1,2,4,5};
         pMonster_skill_ids.Add(pMonster2_skill_ids);
-        List<int> pMonster3_skill_ids = new List<int>(){0,1,2,5,6,7};
+        List<int> pMonster3_skill_ids = new List<int>(){1,2,5,6,7};
         pMonster_skill_ids.Add(pMonster3_skill_ids);
-        List<int> pMonster4_skill_ids = new List<int>(){0,8,9,13};
+        List<int> pMonster4_skill_ids = new List<int>(){8,9,13};
         pMonster_skill_ids.Add(pMonster4_skill_ids);
+        
+        default_attack = new Skill(skill_data.sheets[0].list[0]);
     }
 
     // status windowもmonsterのパラメータもセットする関数
@@ -122,6 +126,9 @@ public class BattleManager : MonoBehaviour
             pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == pMonster_id_list[i]);
             monster = new Monster(pMonster_param);
             monster.SetSkills(pMonster_skill_ids[i], skill_data);
+            for (int j = 0; j < monster.skills.Count; j++) {
+                Debug.Log(monster.param.name_ja + ":" + monster.skills[j].param.name_ja);
+            }
             pMonsters.Add(monster);
         }
 
@@ -188,6 +195,7 @@ public class BattleManager : MonoBehaviour
 
         foreach(GameObject command_block in command_blocks) {
             index += 1;
+            if (!command_block.activeSelf) continue;
             Vector3 relativeMousePos = command_block.transform.InverseTransformPoint(mousePos);
             if ((relativeMousePos.x >= -(command_block_size.x / 2) && relativeMousePos.x <= command_block_size.x / 2) &&
             (relativeMousePos.y >= -(command_block_size.y / 2) && relativeMousePos.y <= command_block_size.y / 2)
@@ -208,23 +216,34 @@ public class BattleManager : MonoBehaviour
             }
         }
 
+        Vector3 sw_pos;
         switch (command_id) {
             case 0:
                 SceneMode = SceneType.ATTACK;
-                Vector3 sw_pos = pMonsters[selecter].GetStatusWindow().transform.position;
+                sw_pos = pMonsters[selecter].GetStatusWindow().transform.position;
                 sw_pos.y -= 5;
                 pMonsters[selecter].GetStatusWindow().transform.position = sw_pos;
                 if (selecter == 0) {
                     select_monsters = new List<Monster>();
+                    select_skills = new List<Skill>();
                 }
+                select_skills.Add(default_attack);
                 select_monster = 0;
                 break;
             case 1:
                 SceneMode = SceneType.ITEM;
-                second_canvas.gameObject.SetActive(true);
                 break;
             case 2:
+                sw_pos = pMonsters[selecter].GetStatusWindow().transform.position;
+                sw_pos.y -= 5;
+                pMonsters[selecter].GetStatusWindow().transform.position = sw_pos;
                 SceneMode = SceneType.SPECIAL;
+                scm.OpenSkillWindow(pMonsters[selecter]);
+                if (selecter == 0) {
+                    select_monsters = new List<Monster>();
+                    select_skills = new List<Skill>();
+                }
+                select_monster = 0;
                 break;
             case 3:
                 SceneMode = SceneType.ESCAPE;
@@ -384,19 +403,21 @@ public class BattleManager : MonoBehaviour
     {
         for (int i = 0; i < num_pMonster; i++) {
             //仮にrandom決定
-            int r = Random.Range(0, pMonsters[i].skills.Count);
-            // pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], new Skill(skill_data.sheets[0].list.Find(action=> action.id == 1))));
-            pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], pMonsters[i].skills[r]));
+            // int r = Random.Range(0, pMonsters[i].skills.Count);
+            // // pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], new Skill(skill_data.sheets[0].list.Find(action=> action.id == 1))));
+            // pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], pMonsters[i].skills[r]));
+            pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], select_skills[i]));
         }
         for (int i=0; i<num_monster; i++) {
             int r = Random.Range(0, num_pMonster-1);
-            enemy_monsters[i].SetAction(new EnemyAction(enemy_monsters[i], pMonsters[r], new Skill(skill_data.sheets[0].list.Find(action=> action.id == 0))));
+            enemy_monsters[i].SetAction(new EnemyAction(enemy_monsters[i], pMonsters[r], default_attack));
         }
     }
 
     void Update() 
     {
         Vector3 mousePos;
+        Vector3 sw_pos;
         switch (SceneMode) {
             case SceneType.SELECT:
                 if (Input.GetMouseButtonDown(0)) {
@@ -429,8 +450,7 @@ public class BattleManager : MonoBehaviour
                 if (Input.GetMouseButtonDown(0)) {
                     mousePos = Input.mousePosition;
                     // ATTACKをやめるときの処理
-                    Vector3 sw_pos;
-                    if (ClickCommandBlock(mousePos) == 0) {
+                    if (ClickCommandBlock(mousePos) >= 0) {
                         sw_pos = pMonsters[selecter].GetStatusWindow().transform.position;
                         sw_pos.y += 5;
                         pMonsters[selecter].GetStatusWindow().transform.position = sw_pos;
@@ -457,7 +477,8 @@ public class BattleManager : MonoBehaviour
                             // 全員の行動が決定したとき
                             if (selecter >= num_pMonster) {
                                 selecter = 0;
-                                command_blocks[0].SetActive(false);
+                                for (int i = 0; i < 4; i++) command_blocks[i].SetActive(false);
+
                                 for (int i = 0; i < num_monster; i++) {
                                     enemy_images[i].transform.Find("Cursor").gameObject.SetActive(false);
                                 }
@@ -467,8 +488,8 @@ public class BattleManager : MonoBehaviour
                                 battle_scene_step = 0;
                                 battleMessage1.enabled = true;
                                 turn_wait_time = 1.0f;
-                                Debug.Log(action_order[0].attacker.param.name_ja + "の攻撃");
-                                battleMessage1.text = action_order[0].attacker.param.name_ja  + "の攻撃！";
+                                Debug.Log(action_order[0].attacker.param.name_ja + "の" + action_order[0].skill.param.name_ja);
+                                battleMessage1.text = action_order[0].attacker.param.name_ja  + "の" + action_order[0].skill.param.name_ja + "！";
                                 SceneMode = SceneType.PROCESS;
                                 break;
                             // まだ全員の行動が決まっていないとき
@@ -582,7 +603,8 @@ public class BattleManager : MonoBehaviour
                             } 
                             else {
                                 Debug.Log(action_order[0].attacker.param.name_ja + "の攻撃");
-                                battleMessage1.text = action_order[0].attacker.param.name_ja + "の攻撃";
+                                battleMessage1.text = action_order[0].attacker.param.name_ja + "の" +
+                                action_order[0].skill.param.name_ja + "！";
                                 battleMessage1.enabled = true;
                                 turn_wait_time = 1.0f;
                             }
@@ -612,7 +634,7 @@ public class BattleManager : MonoBehaviour
                 if (Input.GetMouseButtonDown(0)) {
                     mousePos = Input.mousePosition;
                     // ITEMをやめるときの処理
-                    if (ClickCommandBlock(mousePos) == 1) {
+                    if (ClickCommandBlock(mousePos) >= 0) {
                         // 遷移処理
                         for (int i = 0; i < 4; i++) {
                             command_blocks[i].SetActive(true);
@@ -625,13 +647,25 @@ public class BattleManager : MonoBehaviour
             case SceneType.SPECIAL:
                 if (Input.GetMouseButtonDown(0)) {
                     mousePos = Input.mousePosition;
-                    // ITEMをやめるときの処理
-                    if (ClickCommandBlock(mousePos) == 2) {
-                        // 遷移処理
+                    // SPECIALをやめるときの処理
+                    if(scm.CloseWindow(mousePos)) {
                         for (int i = 0; i < 4; i++) {
                             command_blocks[i].SetActive(true);
                         }
+                        sw_pos = pMonsters[selecter].GetStatusWindow().transform.position;
+                        sw_pos.y += 5;
+                        pMonsters[selecter].GetStatusWindow().transform.position = sw_pos;
                         SceneMode = SceneType.SELECT;
+                        break;
+                    }
+
+                    // skillが選択されたとき
+                    int select_skill = scm.SelectSkills(mousePos);
+                    if (select_skill >= 0) {
+                        Debug.Log(select_skill);
+                        SceneMode = SceneType.ATTACK;
+                        select_skills.Add(pMonsters[selecter].skills[select_skill]);
+                        Debug.Log(select_skills[selecter]);
                         break;
                     }
                 }
@@ -639,8 +673,8 @@ public class BattleManager : MonoBehaviour
             case SceneType.ESCAPE:
             if (Input.GetMouseButtonDown(0)) {
                     mousePos = Input.mousePosition;
-                    // ITEMをやめるときの処理
-                    if (ClickCommandBlock(mousePos) == 3) {
+                    // ESCAPEをやめるときの処理
+                    if (ClickCommandBlock(mousePos) >= 0) {
                         // 遷移処理
                         for (int i = 0; i < 4; i++) {
                             command_blocks[i].SetActive(true);

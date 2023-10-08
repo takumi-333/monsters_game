@@ -5,7 +5,7 @@ using TMPro;
 
 public class Action
 {
-    private Skill skill;
+    public Skill skill;
     public Monster attacker;
     public Monster defender;
     public int skill_id;
