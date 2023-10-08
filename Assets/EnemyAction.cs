@@ -5,7 +5,7 @@ using TMPro;
 
 public class EnemyAction : Action
 {
-    public EnemyAction(Monster attacker, Monster defender, ActionData.Param action_param) : base(attacker, defender, action_param){}
+    public EnemyAction(Monster attacker, Monster defender, SkillData.Param skill_param) : base(attacker, defender, skill_param){}
 
     // public override void HandleAction(TextMeshProUGUI battleMessage) {
     //     int total_damage = CalDamage();

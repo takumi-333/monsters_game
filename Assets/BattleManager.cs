@@ -8,9 +8,10 @@ public class BattleManager : MonoBehaviour
 {
     private double _time;
     
-    GameObject Screen;
+    private GameObject Screen;
+    private Canvas second_canvas;
     private MonsterData monster_data;
-    private ActionData action_data;
+    private SkillData skill_data;
     private TextMeshProUGUI battleMessage1;
     private TextMeshProUGUI battleMessage2;
 
@@ -19,7 +20,6 @@ public class BattleManager : MonoBehaviour
     // player's monster info
     private int[] pMonster_id_list = {3, 3, 3, 6};
     private int num_pMonster = 4;
-    // private List<MonsterData.Param> pMonsters = new List<MonsterData.Param>();
     private List<Monster> pMonsters = new List<Monster>();
     private List<GameObject> status_windows = new List<GameObject>();
 
@@ -85,9 +85,14 @@ public class BattleManager : MonoBehaviour
     {
         command_window = GameObject.Find("CommandWindow");
         start_button = GameObject.Find("GenerateButton");
+        // second_window = GameObject.Find("SecondWindow");
+        
         monster_data = Resources.Load("monster_data") as MonsterData;
-        action_data = Resources.Load("action_data") as ActionData;
+        skill_data = Resources.Load("skill_data") as SkillData;
         Screen = GameObject.Find("BackgroundImage");
+
+        second_canvas = Screen.transform.Find("SecondCanvas").GetComponent<Canvas>();
+        Debug.Log(second_canvas);
         battleMessage1 = GameObject.Find("BattleMessage1").GetComponent<TextMeshProUGUI>();
         battleMessage2 = GameObject.Find("BattleMessage2").GetComponent<TextMeshProUGUI>();
         battleMessage1.enabled = false;
@@ -204,6 +209,7 @@ public class BattleManager : MonoBehaviour
                 break;
             case 1:
                 SceneMode = SceneType.ITEM;
+                second_canvas.gameObject.SetActive(true);
                 break;
             case 2:
                 SceneMode = SceneType.SPECIAL;
@@ -365,11 +371,11 @@ public class BattleManager : MonoBehaviour
     public void SetActions()
     {
         for (int i = 0; i < num_pMonster; i++) {
-            pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], action_data.sheets[0].list.Find(action=> action.id == 1)));
+            pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], skill_data.sheets[0].list.Find(action=> action.id == 1)));
         }
         for (int i=0; i<num_monster; i++) {
             int r = Random.Range(0, num_pMonster-1);
-            enemy_monsters[i].SetAction(new EnemyAction(enemy_monsters[i], pMonsters[r], action_data.sheets[0].list.Find(action=> action.id == 0)));
+            enemy_monsters[i].SetAction(new EnemyAction(enemy_monsters[i], pMonsters[r], skill_data.sheets[0].list.Find(action=> action.id == 0)));
         }
     }
 

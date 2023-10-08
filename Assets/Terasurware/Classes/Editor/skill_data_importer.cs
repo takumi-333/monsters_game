@@ -7,9 +7,9 @@ using NPOI.HSSF.UserModel;
 using NPOI.XSSF.UserModel;
 using NPOI.SS.UserModel;
 
-public class action_data_importer : AssetPostprocessor {
-	private static readonly string filePath = "Assets/action_data.xls";
-	private static readonly string exportPath = "Assets/action_data.asset";
+public class skill_data_importer : AssetPostprocessor {
+	private static readonly string filePath = "Assets/skill_data.xls";
+	private static readonly string exportPath = "Assets/skill_data.asset";
 	private static readonly string[] sheetNames = { "Sheet1", };
 	
 	static void OnPostprocessAllAssets (string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
@@ -18,9 +18,9 @@ public class action_data_importer : AssetPostprocessor {
 			if (!filePath.Equals (asset))
 				continue;
 				
-			ActionData data = (ActionData)AssetDatabase.LoadAssetAtPath (exportPath, typeof(ActionData));
+			SkillData data = (SkillData)AssetDatabase.LoadAssetAtPath (exportPath, typeof(SkillData));
 			if (data == null) {
-				data = ScriptableObject.CreateInstance<ActionData> ();
+				data = ScriptableObject.CreateInstance<SkillData> ();
 				AssetDatabase.CreateAsset ((ScriptableObject)data, exportPath);
 				data.hideFlags = HideFlags.NotEditable;
 			}
@@ -41,14 +41,14 @@ public class action_data_importer : AssetPostprocessor {
 						continue;
 					}
 
-					ActionData.Sheet s = new ActionData.Sheet ();
+					SkillData.Sheet s = new SkillData.Sheet ();
 					s.name = sheetName;
 				
 					for (int i=1; i<= sheet.LastRowNum; i++) {
 						IRow row = sheet.GetRow (i);
 						ICell cell = null;
 						
-						ActionData.Param p = new ActionData.Param ();
+						SkillData.Param p = new SkillData.Param ();
 						
 					cell = row.GetCell(0); p.id = (int)(cell == null ? 0 : cell.NumericCellValue);
 					cell = row.GetCell(1); p.name_ja = (cell == null ? "" : cell.StringCellValue);

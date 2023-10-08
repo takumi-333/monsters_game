@@ -10,9 +10,13 @@ public class Monster : MonsterData.Param
     private Action action;
     private RawImage image;
     private GameObject status_window;
+    public int max_hp;
+    public int max_mp;
 
     public Monster(MonsterData.Param param) {
         this.param =  param.ShallowCopy();
+        max_hp = param.hp;
+        max_mp = param.mp;
     }
 
     public void SetAction(Action action) {
