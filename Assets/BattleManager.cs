@@ -105,7 +105,7 @@ public class BattleManager : MonoBehaviour
         pMonster_skill_ids = new List<List<int>>();
         List<int> pMonster1_skill_ids = new List<int>(){1,2,3};
         pMonster_skill_ids.Add(pMonster1_skill_ids);
-        List<int> pMonster2_skill_ids = new List<int>(){1,2,4,5};
+        List<int> pMonster2_skill_ids = new List<int>(){1,1,1,1,1,1,1,1,1,2,3,4,5,6,7,8,9,10,11,12,13};
         pMonster_skill_ids.Add(pMonster2_skill_ids);
         List<int> pMonster3_skill_ids = new List<int>(){1,2,5,6,7};
         pMonster_skill_ids.Add(pMonster3_skill_ids);
@@ -126,9 +126,6 @@ public class BattleManager : MonoBehaviour
             pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == pMonster_id_list[i]);
             monster = new Monster(pMonster_param);
             monster.SetSkills(pMonster_skill_ids[i], skill_data);
-            for (int j = 0; j < monster.skills.Count; j++) {
-                Debug.Log(monster.param.name_ja + ":" + monster.skills[j].param.name_ja);
-            }
             pMonsters.Add(monster);
         }
 
@@ -648,6 +645,8 @@ public class BattleManager : MonoBehaviour
                 if (Input.GetMouseButtonDown(0)) {
                     mousePos = Input.mousePosition;
                     // SPECIALをやめるときの処理
+                    scm.NextSkillWindow(mousePos, pMonsters[selecter]);
+                    scm.BackSkillWindow(mousePos, pMonsters[selecter]);
                     if(scm.CloseWindow(mousePos)) {
                         for (int i = 0; i < 4; i++) {
                             command_blocks[i].SetActive(true);

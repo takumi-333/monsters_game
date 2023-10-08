@@ -48,18 +48,76 @@ public class SecondCanvasManager
         } else {
             for (int i = 0; i < 8; i++) {
                 items[i].text = monster.skills[i].param.name_ja;
+                items[i].enabled = true;
+            }
+            toRight.GetComponent<RawImage>().enabled = true;
+        }
+    }
+
+    public void BackSkillWindow(Vector3 mousePos, Monster monster)
+    {
+        if (toLeft.activeSelf == false || toLeft.activeInHierarchy == false) return;
+        Vector3 relativeMousePos = toLeft.transform.InverseTransformPoint(mousePos);
+        Vector2 to_left_size = toLeft.GetComponent<RectTransform>().sizeDelta;
+
+        // toLeftが押された場合
+        if ((relativeMousePos.x >= -(to_left_size.x / 2) && relativeMousePos.x <= to_left_size.x / 2) &&
+        (relativeMousePos.y >= -(to_left_size.y / 2) && relativeMousePos.y <= to_left_size.y / 2)
+        ) {
+            toRight.GetComponent<RawImage>().enabled = true;
+            page--;
+
+            // 前のページが存在しない場合
+            if (page == 0) {
+                for (int i = 0; i < 8; i++) {
+                    items[i].text = monster.skills[i + 8 * page].param.name_ja;
+                    items[i].enabled = true;
+                }
+                toLeft.GetComponent<RawImage>().enabled = false;
+            } else if (page > 0) {
+                for (int i = 0; i < 8; i++) {
+                    items[i].text = monster.skills[i + 8 * page].param.name_ja;
+                    items[i].enabled = true;
+                }
+                toLeft.GetComponent<RawImage>().enabled = true;
+            } else {
+                Debug.Log("Error: the page does not exist");
             }
         }
     }
 
-    public void BackSkillWindow(Monster monster, int page)
+    public void NextSkillWindow(Vector3 mousePos, Monster monster)
     {
+        if (toRight.activeSelf == false || toRight.activeInHierarchy == false) return;
+        Vector3 relativeMousePos = toRight.transform.InverseTransformPoint(mousePos);
+        Vector2 to_right_size = toRight.GetComponent<RectTransform>().sizeDelta;
 
-    }
+        // toRightが押された場合
+        if ((relativeMousePos.x >= -(to_right_size.x / 2) && relativeMousePos.x <= to_right_size.x / 2) &&
+        (relativeMousePos.y >= -(to_right_size.y / 2) && relativeMousePos.y <= to_right_size.y / 2)
+        ) {
+            toLeft.GetComponent<RawImage>().enabled = true;
+            page++;
 
-    public void NextSkillWindow(Monster monster, int page)
-    {
-
+            // 次のページが必要ない場合
+            if (monster.skills.Count < 8 * (page + 1)) {
+                for (int i = 0; i < monster.skills.Count - 8 * page; i++) {
+                    items[i].text = monster.skills[i + 8 * page].param.name_ja;
+                    items[i].enabled = true;
+                }
+                for (int i = monster.skills.Count - 8 * page; i < 8; i++) {
+                    items[i].enabled = false;
+                }
+                toRight.GetComponent<RawImage>().enabled = false;
+            } 
+            // 次のページが必要な場合
+            else {
+                for (int i = 0; i < 8; i++) {
+                    items[i].text = monster.skills[i + 8 * page].param.name_ja;
+                    items[i].enabled = true;
+                }
+            }
+        }
     }
 
     public bool CloseWindow(Vector3 mousePos) 
