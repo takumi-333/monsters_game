@@ -59,6 +59,8 @@ public class BattleManager : MonoBehaviour
     private List<List<int>> pMonster_skill_ids;
     private Skill default_attack;
 
+    public Monster test_monster;
+
 
     public enum CommandType
     {
@@ -113,6 +115,8 @@ public class BattleManager : MonoBehaviour
         default_attack = new Skill(skill_data.sheets[0].list[0]);
         
         isCalledOnce = true;
+
+        Debug.Log("テスト:" + test_monster.param.name_ja);
     }
 
     // status windowもmonsterのパラメータもセットする関数
