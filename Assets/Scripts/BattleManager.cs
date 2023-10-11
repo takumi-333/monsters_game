@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class BattleManager : MonoBehaviour
 {
@@ -19,9 +20,8 @@ public class BattleManager : MonoBehaviour
     private List<RawImage> enemy_images = new List<RawImage>();
 
     // player's monster info
-    private int[] pMonster_id_list = {3, 3, 3, 6};
-    private int num_pMonster = 4;
-    private List<Monster> pMonsters = new List<Monster>();
+    public int num_pMonster;
+    public List<Monster> pMonsters;
     private List<GameObject> status_windows = new List<GameObject>();
 
     // enemy monster info
@@ -32,12 +32,9 @@ public class BattleManager : MonoBehaviour
     private GameObject command_window;
     private List<GameObject> command_blocks = new List<GameObject>();
 
-    //仮のボタン、これを押すと戦闘開始
-    private GameObject start_button;
-
-
     // シーンの制御をするための変数
-    private SceneType SceneMode = SceneType.SELECT; 
+    private SceneType SceneMode; 
+    private bool isCalledOnce;
 
     // ATTACK時に使用する変数
     private int select_monster;
@@ -59,9 +56,10 @@ public class BattleManager : MonoBehaviour
     private double end_wait_time = 0;
     
     // 仮に使用
-    private List<List<int>> pMonster_skill_ids;
     private Skill default_attack;
 
+    private AudioSource audio_source;
+    public AudioClip win_sound;
 
     public enum CommandType
     {
@@ -73,6 +71,7 @@ public class BattleManager : MonoBehaviour
 
     public enum SceneType
     {
+        START,
         SELECT,
         ATTACK,
         ITEM,
@@ -88,8 +87,10 @@ public class BattleManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        audio_source = GetComponent<AudioSource>();
+        audio_source.Play();
+        SceneMode = SceneType.START;
         command_window = GameObject.Find("CommandWindow");
-        start_button = GameObject.Find("GenerateButton");
         monster_data = Resources.Load("monster_data") as MonsterData;
         skill_data = Resources.Load("skill_data") as SkillData;
         Screen = GameObject.Find("BackgroundImage");
@@ -100,19 +101,10 @@ public class BattleManager : MonoBehaviour
         battleMessage1.enabled = false;
         battleMessage2.enabled = false;
         command_block_str = new string[]{"こうげき", "どうぐ", "とくぎ", "にげる"};
-
-        // 仮の形式
-        pMonster_skill_ids = new List<List<int>>();
-        List<int> pMonster1_skill_ids = new List<int>(){1,2,3};
-        pMonster_skill_ids.Add(pMonster1_skill_ids);
-        List<int> pMonster2_skill_ids = new List<int>(){1,1,1,1,1,1,1,1,1,2,3,4,5,6,7,8,9,10,11,12,13};
-        pMonster_skill_ids.Add(pMonster2_skill_ids);
-        List<int> pMonster3_skill_ids = new List<int>(){1,2,5,6,7};
-        pMonster_skill_ids.Add(pMonster3_skill_ids);
-        List<int> pMonster4_skill_ids = new List<int>(){8,9,13};
-        pMonster_skill_ids.Add(pMonster4_skill_ids);
         
         default_attack = new Skill(skill_data.sheets[0].list[0]);
+        
+        isCalledOnce = true;
     }
 
     // status windowもmonsterのパラメータもセットする関数
@@ -120,14 +112,14 @@ public class BattleManager : MonoBehaviour
     {
         
         // set player's monster parameter
-        MonsterData.Param pMonster_param;
-        Monster monster;
-        for (int i = 0; i < num_pMonster; i++) {
-            pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == pMonster_id_list[i]);
-            monster = new Monster(pMonster_param);
-            monster.SetSkills(pMonster_skill_ids[i], skill_data);
-            pMonsters.Add(monster);
-        }
+        // MonsterData.Param pMonster_param;
+        // Monster monster;
+        // for (int i = 0; i < num_pMonster; i++) {
+        //     pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == pMonster_id_list[i]);
+        //     monster = new Monster(pMonster_param);
+        //     monster.SetSkills(pMonster_skill_ids[i], skill_data);
+        //     pMonsters.Add(monster);
+        // }
 
         // set status window
         GameObject status_window_prefab = Resources.Load<GameObject>("StatusWindow");
@@ -306,11 +298,12 @@ public class BattleManager : MonoBehaviour
             command_blocks[i].transform.localPosition = command_block_pos[i];
             Debug.Log(command_block_str[i]);
             command_blocks[i].transform.Find("CommandText").GetComponent<TextMeshProUGUI>().text = command_block_str[i];
+            command_blocks[i].gameObject.SetActive(false);
         }
         
         // set Monsters
         //無駄な処理多いからforループにしたいね
-        num_monster = Random.Range(4,4);
+        num_monster = Random.Range(1,4);
 
         GameObject enemy_image_prefab = Resources.Load<GameObject>("EnemyImage");
         for (int i = 0; i < num_monster; i++) {
@@ -374,12 +367,10 @@ public class BattleManager : MonoBehaviour
                 }
                 break;
         }
-        Destroy(start_button);
-
         selecter = 0;
     }
 
-    public List<Action> SetActionOrder() 
+    private List<Action> SetActionOrder() 
     {
         List <Monster> all_monsters = new List<Monster>();
         for (int i = 0; i < pMonsters.Count; i++) {
@@ -396,13 +387,9 @@ public class BattleManager : MonoBehaviour
         return _action_order;
     }
 
-    public void SetActions()
+    private void SetActions()
     {
         for (int i = 0; i < num_pMonster; i++) {
-            //仮にrandom決定
-            // int r = Random.Range(0, pMonsters[i].skills.Count);
-            // // pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], new Skill(skill_data.sheets[0].list.Find(action=> action.id == 1))));
-            // pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], pMonsters[i].skills[r]));
             pMonsters[i].SetAction(new PlayerAction(pMonsters[i], select_monsters[i], select_skills[i]));
         }
         for (int i=0; i<num_monster; i++) {
@@ -411,11 +398,75 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    private IEnumerator StartProcess() 
+    {
+        StartBattle();
+        string startMessage;
+        if (num_monster == 1) {
+            startMessage = enemy_monsters[0].param.name_ja + "が現れた！";
+        } else if (num_monster > 1) {
+            startMessage = enemy_monsters[0].param.name_ja + "たちが現れた！";
+        } else {
+            startMessage = "";
+            Debug.Log("Error: モンスター出現エラー");
+        }
+        battleMessage1.text = "";
+        battleMessage1.enabled = true;
+        battleMessage1.text += startMessage[0];
+        for (int i = 1; i < startMessage.Length; i++) {
+            battleMessage1.text += startMessage[i];
+            yield return new WaitForSeconds (0.1f);
+
+        }
+        yield return new WaitForSeconds (1.5f);
+        battleMessage1.enabled = false;
+        SceneMode = SceneType.SELECT;
+        for (int i = 0; i < 4; i++) {
+            command_blocks[i].SetActive(true);
+        }
+    }
+
+    private IEnumerator WinBattle()
+    {
+        audio_source.Stop();
+        audio_source.PlayOneShot(win_sound);
+        yield return null;
+        CallMapScene();
+    }
+
+    private void CallMapScene()
+    {
+            // イベントにメソッドを登録
+            SceneManager.sceneLoaded += GameSceneLoaded;
+
+            SceneManager.LoadScene("MapScene");
+
+        void GameSceneLoaded(Scene next, LoadSceneMode mode)
+        {
+            // シーン切り替え後のスクリプトを取得
+            var gameManager = 
+                GameObject.FindWithTag("Player").GetComponent<PlayerMove>();
+
+            // データを渡す処理
+            gameManager.num_pMonster = num_pMonster;
+            gameManager.pMonsters = pMonsters;
+
+            // イベントからメソッドを削除
+            SceneManager.sceneLoaded -= GameSceneLoaded;
+        }
+    }
+
     void Update() 
     {
         Vector3 mousePos;
         Vector3 sw_pos;
         switch (SceneMode) {
+            case SceneType.START:
+                if (isCalledOnce){
+                    StartCoroutine("StartProcess");
+                    isCalledOnce = false;
+                }
+                break;
             case SceneType.SELECT:
                 if (Input.GetMouseButtonDown(0)) {
                     mousePos = Input.mousePosition;
@@ -619,9 +670,10 @@ public class BattleManager : MonoBehaviour
                         break;
                     case 1:
                         if (!(end_wait_time > 0)) {
+                            end_wait_time = 10f;
                             battleMessage1.enabled = false;
                             // scene遷移
-                            SceneMode = SceneType.ANOTHER;
+                            StartCoroutine("WinBattle");
                         }
                         break;
                 }
@@ -670,18 +722,25 @@ public class BattleManager : MonoBehaviour
                 }
                 break;
             case SceneType.ESCAPE:
-            if (Input.GetMouseButtonDown(0)) {
-                    mousePos = Input.mousePosition;
-                    // ESCAPEをやめるときの処理
-                    if (ClickCommandBlock(mousePos) >= 0) {
-                        // 遷移処理
-                        for (int i = 0; i < 4; i++) {
-                            command_blocks[i].SetActive(true);
-                        }
-                        SceneMode = SceneType.SELECT;
-                        break;
-                    }
+                for (int i = 0; i < 4; i++) {
+                    command_blocks[i].SetActive(false);
                 }
+                battleMessage1.text = "バトルから逃げ出した！";
+                battleMessage1.enabled = true;
+                SceneMode = SceneType.END;
+                end_scene_step = 0;
+                // if (Input.GetMouseButtonDown(0)) {
+                //     mousePos = Input.mousePosition;
+                //     // ESCAPEをやめるときの処理
+                //     if (ClickCommandBlock(mousePos) >= 0) {
+                //         // 遷移処理
+                //         for (int i = 0; i < 4; i++) {
+                //             command_blocks[i].SetActive(true);
+                //         }
+                //         SceneMode = SceneType.SELECT;
+                //         break;
+                //     }
+                // }
                 break;
             default:
                 break;
