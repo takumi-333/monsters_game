@@ -35,6 +35,7 @@ public class BattleManager : MonoBehaviour
     // シーンの制御をするための変数
     private SceneType SceneMode; 
     private bool isCalledOnce;
+    private bool isCalledEnding;
 
     // ATTACK時に使用する変数
     private int select_monster;
@@ -52,14 +53,20 @@ public class BattleManager : MonoBehaviour
     private double turn_wait_time = 0;
 
     // END時に使用する変数
-    private int end_scene_step = 0;
-    private double end_wait_time = 0;
+    private EndingType ending_type;
     
     // 仮に使用
     private Skill default_attack;
 
     private AudioSource audio_source;
     public AudioClip win_sound;
+    public AudioClip lose_sound;
+    public AudioClip escape_sound;
+
+    // debug用
+    public int[] pMonster_id_list = {0, 1, 2, 6};
+    private List<List<int>> pMonster_skill_ids;
+
 
     public enum CommandType
     {
@@ -80,6 +87,13 @@ public class BattleManager : MonoBehaviour
         PROCESS,
         END,
         ANOTHER,
+    }
+
+    public enum EndingType
+    {
+        WIN,
+        LOSE,
+        ESCAPE,
     }
 
     private string[] command_block_str;
@@ -103,8 +117,24 @@ public class BattleManager : MonoBehaviour
         command_block_str = new string[]{"こうげき", "どうぐ", "とくぎ", "にげる"};
         
         default_attack = new Skill(skill_data.sheets[0].list[0]);
+
+        // debug用
+        if (pMonsters == null) {
+            pMonsters = new List<Monster>();
+            pMonster_skill_ids = new List<List<int>>();
+            List<int> pMonster1_skill_ids = new List<int>(){1,2,3};
+            pMonster_skill_ids.Add(pMonster1_skill_ids);
+            List<int> pMonster2_skill_ids = new List<int>(){1,2,3,4,5,6,7,8,9,10,11,12,13};
+            pMonster_skill_ids.Add(pMonster2_skill_ids);
+            List<int> pMonster3_skill_ids = new List<int>(){1,2,5,6,7};
+            pMonster_skill_ids.Add(pMonster3_skill_ids);
+            List<int> pMonster4_skill_ids = new List<int>(){8,9,13};
+            pMonster_skill_ids.Add(pMonster4_skill_ids);
+        }
+        num_pMonster = 4;
         
         isCalledOnce = true;
+        isCalledEnding = false;
     }
 
     // status windowもmonsterのパラメータもセットする関数
@@ -112,14 +142,19 @@ public class BattleManager : MonoBehaviour
     {
         
         // set player's monster parameter
-        // MonsterData.Param pMonster_param;
-        // Monster monster;
-        // for (int i = 0; i < num_pMonster; i++) {
-        //     pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == pMonster_id_list[i]);
-        //     monster = new Monster(pMonster_param);
-        //     monster.SetSkills(pMonster_skill_ids[i], skill_data);
-        //     pMonsters.Add(monster);
-        // }
+
+        //debug用
+        if (pMonsters.Count == 0) {
+            MonsterData.Param pMonster_param;
+            Monster monster;
+            for (int i = 0; i < num_pMonster; i++) {
+                pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == pMonster_id_list[i]);
+                monster = new Monster(pMonster_param);
+                monster.SetSkills(pMonster_skill_ids[i], skill_data);
+                pMonsters.Add(monster);
+                Debug.Log(pMonsters[i].param.name_ja);
+            }
+        }
 
         // set status window
         GameObject status_window_prefab = Resources.Load<GameObject>("StatusWindow");
@@ -204,7 +239,6 @@ public class BattleManager : MonoBehaviour
                 command_blocks[i].SetActive(false);
             }
         }
-
         Vector3 sw_pos;
         switch (command_id) {
             case 0:
@@ -426,11 +460,23 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    private IEnumerator WinBattle()
+    private IEnumerator FinishBattle()
     {
         audio_source.Stop();
-        audio_source.PlayOneShot(win_sound);
-        yield return null;
+        switch (ending_type) {
+            case EndingType.WIN:
+                audio_source.PlayOneShot(win_sound);
+                break;
+            case EndingType.LOSE:
+                audio_source.PlayOneShot(lose_sound);
+                break;
+            case EndingType.ESCAPE:
+                audio_source.PlayOneShot(escape_sound);
+                break;
+        }
+        yield return new WaitWhile(() => audio_source.isPlaying);
+        yield return new WaitForSeconds(0.2f);
+        battleMessage1.enabled = false;
         CallMapScene();
     }
 
@@ -628,16 +674,16 @@ public class BattleManager : MonoBehaviour
                             if (num_monster == 0) {
                                 battleMessage1.text = "戦いに勝利した！";
                                 battleMessage1.enabled = true;
+                                ending_type = EndingType.WIN;
                                 SceneMode = SceneType.END;
-                                end_scene_step = 0;
                                 break;
                             }
                             // 味方が全滅したとき
                             else if (num_pMonster == 0) {
                                 battleMessage1.text = "全滅してしまった！";
                                 battleMessage1.enabled = true;
+                                ending_type = EndingType.LOSE;
                                 SceneMode = SceneType.END;
-                                end_scene_step = 0;
                                 break;
                             }
                             // アクションが全て終わったとき
@@ -661,21 +707,9 @@ public class BattleManager : MonoBehaviour
                 }
                 break;
             case SceneType.END:
-                end_wait_time -= Time.deltaTime;
-                switch (end_scene_step) {
-                    // battle endに突入
-                    case 0:
-                        end_scene_step++;
-                        end_wait_time = 1.0f;
-                        break;
-                    case 1:
-                        if (!(end_wait_time > 0)) {
-                            end_wait_time = 10f;
-                            battleMessage1.enabled = false;
-                            // scene遷移
-                            StartCoroutine("WinBattle");
-                        }
-                        break;
+                if (!isCalledEnding) {
+                    StartCoroutine("FinishBattle");
+                    isCalledEnding = true;
                 }
                 break;
             
@@ -727,8 +761,8 @@ public class BattleManager : MonoBehaviour
                 }
                 battleMessage1.text = "バトルから逃げ出した！";
                 battleMessage1.enabled = true;
+                ending_type = EndingType.ESCAPE;
                 SceneMode = SceneType.END;
-                end_scene_step = 0;
                 // if (Input.GetMouseButtonDown(0)) {
                 //     mousePos = Input.mousePosition;
                 //     // ESCAPEをやめるときの処理

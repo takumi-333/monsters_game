@@ -729,6 +729,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   num_pMonster: 0
   win_sound: {fileID: 8300000, guid: 144dc365cb3af435bb3665ec68a56483, type: 3}
+  lose_sound: {fileID: 8300000, guid: e8e4a264e08e54f6088fb9c0a0368a72, type: 3}
+  escape_sound: {fileID: 8300000, guid: 8a6e4499e68e5446b93f1b00ab9a3b63, type: 3}
+  pMonster_id_list: 00000000010000000200000006000000
 --- !u!4 &765622928
 Transform:
   m_ObjectHideFlags: 0
