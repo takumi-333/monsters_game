@@ -127,7 +127,7 @@ public class PlayerMove : MonoBehaviour
     private IEnumerator TransBattleScene() {
         audio_source.Stop();
         audio_source.PlayOneShot(encount_enemy_sound);
-        yield return new WaitForSeconds (0.5f);
+        yield return new WaitForSeconds (1.0f);
         CallBattleScene();
     }
     
