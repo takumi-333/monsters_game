@@ -2326,7 +2326,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 765622926}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be461b75252374b7b8b3d88089b86d33, type: 3}
+  m_Script: {fileID: 11500000, guid: 21aa07ff2c37e460795632bf81495b74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   win_sound: {fileID: 8300000, guid: 144dc365cb3af435bb3665ec68a56483, type: 3}
