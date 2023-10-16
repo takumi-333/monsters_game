@@ -3,22 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Monster : MonsterData.Param
+public class Monster
 {
     public bool isEnemy = false;
     public MonsterData.Param param;
-    private Action action;
-    private RawImage image;
-    private GameObject status_window;
+    public Action action;
+    protected RawImage image;
     public List<Skill> skills;
     public int max_hp;
     public int max_mp;
+    public int level;
+    protected State state;
+    public bool isDead;
 
+    public bool blinking = false;
+
+    public enum State
+    {
+        None,
+        Poison,
+        Sleep,
+    }
+    
     public Monster(MonsterData.Param param) {
         this.param =  param.ShallowCopy();
         max_hp = param.hp;
         max_mp = param.mp;
         skills = new List<Skill>();
+        image = null;
+        state = State.None;
+        level = 1;
+        isDead = false;
     }
 
     public void SetAction(Action action) {
@@ -37,33 +52,26 @@ public class Monster : MonsterData.Param
         return image;
     }
 
-    public bool isDead() {
+    public void CheckDead() {
         if (param.hp <= 0) {
-            return true;
+            Debug.Log("detect dead: " + param.name_ja + " died");
+            isDead = true;
+            return;
         }
-        return false;
+        isDead = false;
+        return;
     }
 
-    public void SetStatusWindow(GameObject status_window) 
+    public void AddSkill(Skill new_skill) 
     {
-        this.status_window = status_window;
+        skills.Add(new_skill);
     }
 
-    public GameObject GetStatusWindow() 
+    public void SetSkills(List<Skill> skills)
     {
-        if (isEnemy) {
-            return null;
-        } else {
-            return status_window;
-        }
-    }
-
-    public void SetSkills(List<int> skill_ids, SkillData skill_data) 
-    {
-        Skill skill;
-        for (int i = 0; i < skill_ids.Count; i++) {
-            skill = new Skill(skill_data.sheets[0].list.Find(skill=> skill.id == skill_ids[i]));
-            skills.Add(skill);
+        for (int i = 0; i < skills.Count; i++)
+        {
+            this.skills.Add(skills[i]);
         }
     }
 }

@@ -6,9 +6,20 @@ using TMPro;
 
 public class SecondCanvasManager
 {
+    private class Item 
+    {
+        public TextMeshProUGUI item_text;
+        public Skill skill;
+        public Item(TextMeshProUGUI item_text, Skill skill) {
+            this.skill = skill;
+            this.item_text = item_text;
+        }
+    }
+
     private Canvas canvas;
     private GameObject window;
-    private List<TextMeshProUGUI> items;
+    // private List<TextMeshProUGUI> items;
+    private List<Item> items;
     private GameObject toLeft;
     private GameObject toRight;
     private GameObject escape_cross;
@@ -18,16 +29,17 @@ public class SecondCanvasManager
     public SecondCanvasManager(Canvas canvas) 
     {
         this.canvas = canvas;
+        canvas.gameObject.SetActive(false);
         window = canvas.transform.Find("SecondWindow").gameObject;
-        items = new List<TextMeshProUGUI>();
+        items = new List<Item>();
         for (int i = 0; i < 8; i++) {
-            items.Add(window.transform.Find($"Item{i+1}").gameObject.GetComponent<TextMeshProUGUI>());
+            items.Add(new Item(window.transform.Find($"Item{i+1}").gameObject.GetComponent<TextMeshProUGUI>(), null));
         }
         toLeft = window.transform.Find("Left").gameObject;
         toRight = window.transform.Find("Right").gameObject;
         escape_cross = window.transform.Find("EscapeCross").gameObject;
 
-        items[0].gameObject.SetActive(true);
+        // items[0].gameObject.SetActive(true);
     }
 
     public void OpenSkillWindow(Monster monster) 
@@ -37,17 +49,19 @@ public class SecondCanvasManager
         toLeft.GetComponent<RawImage>().enabled = false;
         if (monster.skills.Count < 8) {
             for (int i = 0; i < monster.skills.Count; i++) {
-                items[i].text = monster.skills[i].param.name_ja;
-                items[i].enabled = true;
+                items[i].item_text.text = monster.skills[i].param.name_ja;
+                items[i].item_text.enabled = true;
+                items[i].skill = monster.skills[i];
             }
             for (int i = monster.skills.Count; i < 8; i++) {
-                items[i].enabled = false;
+                items[i].item_text.enabled = false;
             }
             toRight.GetComponent<RawImage>().enabled = false;
         } else {
             for (int i = 0; i < 8; i++) {
-                items[i].text = monster.skills[i].param.name_ja;
-                items[i].enabled = true;
+                items[i].item_text.text = monster.skills[i].param.name_ja;
+                items[i].item_text.enabled = true;
+                items[i].skill = monster.skills[i];
             }
             toRight.GetComponent<RawImage>().enabled = true;
         }
@@ -69,18 +83,20 @@ public class SecondCanvasManager
             // 前のページが存在しない場合
             if (page == 0) {
                 for (int i = 0; i < 8; i++) {
-                    items[i].text = monster.skills[i + 8 * page].param.name_ja;
-                    items[i].enabled = true;
+                    items[i].item_text.text = monster.skills[i + 8 * page].param.name_ja;
+                    items[i].skill = monster.skills[i + 8 * page];
+                    items[i].item_text.enabled = true;
                 }
                 toLeft.GetComponent<RawImage>().enabled = false;
             } else if (page > 0) {
                 for (int i = 0; i < 8; i++) {
-                    items[i].text = monster.skills[i + 8 * page].param.name_ja;
-                    items[i].enabled = true;
+                    items[i].item_text.text = monster.skills[i + 8 * page].param.name_ja;
+                    items[i].skill = monster.skills[i + 8 * page];
+                    items[i].item_text.enabled = true;
                 }
                 toLeft.GetComponent<RawImage>().enabled = true;
             } else {
-                Debug.Log("Error: the page does not exist");
+                Debug.LogError("Error: the page does not exist");
             }
         }
     }
@@ -101,19 +117,21 @@ public class SecondCanvasManager
             // 次のページが必要ない場合
             if (monster.skills.Count < 8 * (page + 1)) {
                 for (int i = 0; i < monster.skills.Count - 8 * page; i++) {
-                    items[i].text = monster.skills[i + 8 * page].param.name_ja;
-                    items[i].enabled = true;
+                    items[i].item_text.text = monster.skills[i + 8 * page].param.name_ja;
+                    items[i].skill = monster.skills[i + 8 * page];
+                    items[i].item_text.enabled = true;
                 }
                 for (int i = monster.skills.Count - 8 * page; i < 8; i++) {
-                    items[i].enabled = false;
+                    items[i].item_text.enabled = false;
                 }
                 toRight.GetComponent<RawImage>().enabled = false;
             } 
             // 次のページが必要な場合
             else {
                 for (int i = 0; i < 8; i++) {
-                    items[i].text = monster.skills[i + 8 * page].param.name_ja;
-                    items[i].enabled = true;
+                    items[i].item_text.text = monster.skills[i + 8 * page].param.name_ja;
+                    items[i].item_text.enabled = true;
+                    items[i].skill = monster.skills[i + 8 * page];
                 }
             }
         }
@@ -132,28 +150,26 @@ public class SecondCanvasManager
         return false;
     }
 
-    public int SelectSkills(Vector3 mousePos)
+    public Skill SelectSkill(Vector3 mousePos)
     {
         // 選ぶ選択肢がない場合
-        if (items[0].enabled == false) {
-            return -1;
+        if (items[0].item_text.enabled == false) {
+            return null;
         }
-        Vector2 item_block_size = items[0].gameObject.GetComponent<RectTransform>().sizeDelta;
-        // Vector3 relativeMousePos = escape_cross.transform.InverseTransformPoint(mousePos);
+        Vector2 item_block_size = items[0].item_text.gameObject.GetComponent<RectTransform>().sizeDelta;
         Vector3 relativeMousePos;
         for (int i = 0; i < items.Count; i++) {
-            if (items[i].enabled == false) {
+            if (items[i].item_text.enabled == false) {
                 continue;
             }
-            relativeMousePos = items[i].transform.InverseTransformPoint(mousePos);
+            relativeMousePos = items[i].item_text.transform.InverseTransformPoint(mousePos);
             if ((relativeMousePos.x >= -(item_block_size.x / 2) && relativeMousePos.x <= item_block_size.x / 2) &&
             (relativeMousePos.y >= -(item_block_size.y / 2) && relativeMousePos.y <= item_block_size.y / 2)
             ) {
                 canvas.gameObject.SetActive(false);
-                return 8*page + i;
+                return items[i].skill;
             }
         }
-        return -1;
-        
+        return null;
     }
 }

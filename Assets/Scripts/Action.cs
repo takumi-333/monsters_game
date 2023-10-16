@@ -64,23 +64,22 @@ public class Action
         return total_damage;
     }
 
-    public virtual void HandleAction(TextMeshProUGUI battleMessage) {
-        int total_damage;
+    public virtual int HandleAction() {
+        int total_damage = 0;
         switch (skill.skillType) {
             // 攻撃・特技
             case Skill.SkillType.PHYSICAL:
                 total_damage = CalAttackDamage();
-                battleMessage.text = defender.param.name_ja + "は" + total_damage.ToString() + "ダメージを受けた！";
                 defender.param.hp -= total_damage;
                 break;
             // 攻撃魔法
             case Skill.SkillType.MAGIC:
                 total_damage = CalMagicDamage();
-                battleMessage.text = defender.param.name_ja + "は魔法で" + total_damage.ToString() + "ダメージを受けた！";
                 defender.param.hp -= total_damage;
                 break;
             // 回復魔法
             case Skill.SkillType.HEAL:
+                total_damage = -1;
                 break;
             default:
                 Debug.Log("Error: this is unexpected type of skill in HandleAction()");
@@ -89,5 +88,6 @@ public class Action
         if (defender.param.hp < 0) {
             defender.param.hp = 0;
         }
+        return total_damage;
     }
 }

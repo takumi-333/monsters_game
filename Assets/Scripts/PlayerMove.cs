@@ -12,24 +12,25 @@ public class PlayerMove : MonoBehaviour
 
     public float min_encount_steps;
     public float max_encout_steps;
-    public int[] pMonster_id_list = {0, 1, 2, 6};
+    public int[] player_monster_id_list = {0, 1, 2, 6};
 
     private double _time;
     private Vector3 current_pos, next_pos;
     public float input_interval_time = 0.1f;
 
+    // mapの領域（応急処置）
     private float min_x;
     private float min_y;
     private float max_x;
     private float max_y;
 
 
-    public int num_pMonster;
-    public List<Monster> pMonsters;
+    public int num_player_monster;
+    public List<PlayerMonster> player_monsters;
     private MonsterData monster_data;
     private SkillData skill_data;
 
-    private List<List<int>> pMonster_skill_ids;
+    private List<List<int>> player_monster_skill_ids;
 
     private AudioSource audio_source;
     // public AudioClip map_bgm;
@@ -57,23 +58,23 @@ public class PlayerMove : MonoBehaviour
 
         monster_data = Resources.Load("monster_data") as MonsterData;
         skill_data = Resources.Load("skill_data") as SkillData;
-        if(pMonsters != null) {
-            num_pMonster = pMonsters.Count;
+        if(player_monsters != null) {
+            num_player_monster = player_monsters.Count;
         } else {
-            num_pMonster = pMonster_id_list.Length;
+            num_player_monster = player_monster_id_list.Length;
         }
-        if (pMonsters == null) {
-            pMonsters = new List<Monster>();
+        if (player_monsters == null) {
+            player_monsters = new List<PlayerMonster>();
             // 仮の形式
-            pMonster_skill_ids = new List<List<int>>();
-            List<int> pMonster1_skill_ids = new List<int>(){1,2,3};
-            pMonster_skill_ids.Add(pMonster1_skill_ids);
-            List<int> pMonster2_skill_ids = new List<int>(){1,2,3,4,5,6,7,8,9,10,11,12,13};
-            pMonster_skill_ids.Add(pMonster2_skill_ids);
-            List<int> pMonster3_skill_ids = new List<int>(){1,2,5,6,7};
-            pMonster_skill_ids.Add(pMonster3_skill_ids);
-            List<int> pMonster4_skill_ids = new List<int>(){8,9,13};
-            pMonster_skill_ids.Add(pMonster4_skill_ids);
+            player_monster_skill_ids = new List<List<int>>();
+            List<int> player_monster1_skill_ids = new List<int>(){1,2,3};
+            player_monster_skill_ids.Add(player_monster1_skill_ids);
+            List<int> player_monster2_skill_ids = new List<int>(){1,2,3,4,5,6,7,8,9,10,11,12,13};
+            player_monster_skill_ids.Add(player_monster2_skill_ids);
+            List<int> player_monster3_skill_ids = new List<int>(){1,2,5,6,7};
+            player_monster_skill_ids.Add(player_monster3_skill_ids);
+            List<int> player_monster4_skill_ids = new List<int>(){8,9,13};
+            player_monster_skill_ids.Add(player_monster4_skill_ids);
             SetPlayerMonsters();
         }
         min_x = -7.5f;
@@ -84,13 +85,18 @@ public class PlayerMove : MonoBehaviour
 
     private void SetPlayerMonsters() 
     {
-        MonsterData.Param pMonster_param;
-        Monster monster;
-        for (int i = 0; i < num_pMonster; i++) {
-            pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == pMonster_id_list[i]);
-            monster = new Monster(pMonster_param);
-            monster.SetSkills(pMonster_skill_ids[i], skill_data);
-            pMonsters.Add(monster);
+        MonsterData.Param player_monster_param;
+        PlayerMonster monster;
+        for (int i = 0; i < num_player_monster; i++) {
+            player_monster_param = monster_data.sheets[0].list.Find(monster=> monster.id == player_monster_id_list[i]);
+            monster = new PlayerMonster(player_monster_param);
+            List<Skill> skills = new List<Skill>();
+            for (int j = 0; j < player_monster_skill_ids[i].Count; j++)
+            {
+                Skill add_skill = new Skill(skill_data.sheets[0].list.Find(skill=> skill.id  == player_monster_skill_ids[i][j]));
+            }
+            monster.SetSkills(skills);
+            player_monsters.Add(monster);
         }
     }
 
@@ -113,11 +119,10 @@ public class PlayerMove : MonoBehaviour
         {
             // シーン切り替え後のスクリプトを取得
             var gameManager = 
-                GameObject.FindWithTag("BattleManager").GetComponent<BattleManager>();
+                GameObject.FindWithTag("GameManager").GetComponent<GameManager>();
 
             // データを渡す処理
-            gameManager.num_pMonster = num_pMonster;
-            gameManager.pMonsters = pMonsters;
+            gameManager.player_monsters = player_monsters;
 
             // イベントからメソッドを削除
             SceneManager.sceneLoaded -= GameSceneLoaded;
