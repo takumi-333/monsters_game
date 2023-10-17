@@ -26,6 +26,9 @@ public class MonsterManager
     public int num_dead_player_monsters;
     public int num_dead_enemy_monsters;
 
+    private Color orange = new Color(238f/255f, 120f/255f, 0);
+
+
 
     public MonsterManager(Canvas status_window_canvas, Canvas enemy_canvas)
     {
@@ -72,8 +75,7 @@ public class MonsterManager
         for (int i = 0; i < num_player_monsters; i++) {
             status_windows[i].transform.Find("NameText").GetComponent<TextMeshProUGUI>().text = player_monsters[i].param.name_ja;
             status_windows[i].transform.Find("MonsterImage").GetComponent<RawImage>().texture = Resources.Load<Texture2D>(player_monsters[i].param.image_path);
-            status_windows[i].transform.Find("HpText").GetComponent<TextMeshProUGUI>().text = "HP: " + player_monsters[i].param.hp;
-            status_windows[i].transform.Find("MpText").GetComponent<TextMeshProUGUI>().text = "MP: " + player_monsters[i].param.mp;
+            UpdateStatusWindow();
         }
     }
 
@@ -103,6 +105,7 @@ public class MonsterManager
         num_enemy_monsters = Random.Range(1,5);
         List<List<Vector2>> anchors = new List<List<Vector2>>();
 
+        // 敵の配置位置の定義
         switch (num_enemy_monsters) {
             case 1: 
                 anchors.Add(new List<Vector2>(){new Vector2(0.5f-0.075f, 0.2f), new Vector2(0.5f+0.075f, 0.7f)});
@@ -139,6 +142,7 @@ public class MonsterManager
     {
         foreach(GameObject enemy_object in enemy_objects)
         {
+            if (enemy_object.GetComponent<RawImage>().enabled == false) continue;
             Rect enemy_size = enemy_object.GetComponent<RectTransform>().rect;
             Vector3 relativeMousePos = enemy_object.transform.InverseTransformPoint(mousePos);
             if ((relativeMousePos.x >= enemy_size.xMin && relativeMousePos.x <= enemy_size.xMax) &&
@@ -194,18 +198,18 @@ public class MonsterManager
         cursor_image.enabled = !cursor_image.enabled;
     }
 
-    public IEnumerator BlinkMonster(Monster monster)
+    public IEnumerator BlinkMonster(Monster monster, float time)
     {
         // 点滅中なら抜ける
         if (monster.blinking) yield break;
         monster.blinking = true;
         RawImage monster_image = monster.GetImage();
         monster_image.enabled = false;
-        yield return  new WaitForSeconds(0.2f);
+        yield return  new WaitForSeconds(time);
         monster_image.enabled = true;
-        yield return  new WaitForSeconds(0.2f);
+        yield return  new WaitForSeconds(time);
         monster_image.enabled = false;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(time);
         monster_image.enabled = true;
         monster.blinking = false;
     }
@@ -257,11 +261,17 @@ public class MonsterManager
             if (hp_ratio > 0.5f) {
                 continue;
             } 
-            else if (hp_ratio > 0) {
+            else if (hp_ratio > 0.2f) {
                 status_window.GetComponent<Outline>().effectColor = Color.yellow;
                 status_window.transform.Find("NameText").GetComponent<TextMeshProUGUI>().color = Color.yellow;
                 status_window.transform.Find("HpText").GetComponent<TextMeshProUGUI>().color = Color.yellow;
                 status_window.transform.Find("MpText").GetComponent<TextMeshProUGUI>().color = Color.yellow;
+            }
+            else if (hp_ratio > 0) {
+                status_window.GetComponent<Outline>().effectColor = orange;
+                status_window.transform.Find("NameText").GetComponent<TextMeshProUGUI>().color = orange;
+                status_window.transform.Find("HpText").GetComponent<TextMeshProUGUI>().color = orange;
+                status_window.transform.Find("MpText").GetComponent<TextMeshProUGUI>().color = orange;
             }
             else {
                 status_window.GetComponent<Outline>().effectColor = Color.red;
@@ -271,5 +281,14 @@ public class MonsterManager
             }
         }
         
+    }
+
+    public void ReviveMonsters() {
+        foreach(PlayerMonster player_monster in player_monsters) {
+            if (player_monster.isDead) {
+                player_monster.isDead = false;
+                player_monster.param.hp += 1;
+            }
+        }
     }
 }
