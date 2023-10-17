@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
@@ -16,6 +17,9 @@ public class GameManager : MonoBehaviour
 
     private Canvas second_canvas;
     private SecondCanvasManager SCM;
+
+    private Canvas side_command_canvas;
+    private SideCommandManager SComM;
 
     public List<PlayerMonster> player_monsters;
     private List<EnemyMonster> enemy_monsters;
@@ -40,8 +44,12 @@ public class GameManager : MonoBehaviour
 
     private bool isCalledEnding;
 
+
+    
+
     void Start()
     {
+        // コンポーネントの取得
         audio_source = GetComponent<AudioSource>();
         audio_source.Play();
         scene_type = SceneType.START;
@@ -49,9 +57,13 @@ public class GameManager : MonoBehaviour
         enemy_canvas = GameObject.FindWithTag("EnemyCanvas").GetComponent<Canvas>();
         second_canvas = GameObject.FindWithTag("SecondCanvas").GetComponent<Canvas>();
         status_window_canvas = GameObject.FindWithTag("StatusWindowCanvas").GetComponent<Canvas>();
+        side_command_canvas = GameObject.FindWithTag("SideCommandCanvas").GetComponent<Canvas>();
+
+        // 各Managerのセット
         CWM = new CommandWindowManager(command_canvas);
         MM = new MonsterManager(status_window_canvas, enemy_canvas);
         SCM = new SecondCanvasManager(second_canvas);
+        SComM = new SideCommandManager(side_command_canvas);
         MM.SetEnemyMonsters();
         BM = new BattleManager(MM);
 
@@ -59,29 +71,29 @@ public class GameManager : MonoBehaviour
         default_attack = new Skill(skill_data.sheets[0].list[0]);
 
         // debug用
-        // monster_data = Resources.Load("monster_data") as MonsterData;
-        // Skill attack1 = new Skill(skill_data.sheets[0].list[1]);
-        // Skill attack2 = new Skill(skill_data.sheets[0].list[2]);
-        // Skill attack3 = new Skill(skill_data.sheets[0].list[3]);
-        // if (player_monsters == null) {
-        //     player_monsters = new List<PlayerMonster>();
-        //     int[] player_monster_ids = new int[]{0,1,2,3};
-        //     MonsterData.Param pMonster_param;
-        //     PlayerMonster monster;
-        //     for (int i = 0; i < 4; i++)
-        //     {
-        //         pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == player_monster_ids[i]);
-        //         monster = new PlayerMonster(pMonster_param);
+        monster_data = Resources.Load("monster_data") as MonsterData;
+        Skill attack1 = new Skill(skill_data.sheets[0].list[1]);
+        Skill attack2 = new Skill(skill_data.sheets[0].list[2]);
+        Skill attack3 = new Skill(skill_data.sheets[0].list[3]);
+        if (player_monsters == null) {
+            player_monsters = new List<PlayerMonster>();
+            int[] player_monster_ids = new int[]{0,1,2,3};
+            MonsterData.Param pMonster_param;
+            PlayerMonster monster;
+            for (int i = 0; i < 4; i++)
+            {
+                pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == player_monster_ids[i]);
+                monster = new PlayerMonster(pMonster_param);
 
-        //         // debug用ゆえ後で消す
-        //         monster.AddSkill(default_attack);
-        //         monster.AddSkill(attack1);
-        //         monster.AddSkill(attack2);
-        //         monster.AddSkill(attack3);
-        //         // monster.SetSkills(pMonster_skill_ids[i], skill_data);
-        //         player_monsters.Add(monster);
-        //     }
-        // }
+                // debug用ゆえ後で消す
+                monster.AddSkill(default_attack);
+                monster.AddSkill(attack1);
+                monster.AddSkill(attack2);
+                monster.AddSkill(attack3);
+                // monster.SetSkills(pMonster_skill_ids[i], skill_data);
+                player_monsters.Add(monster);
+            }
+        }
        
         foreach(EnemyMonster emon in MM.enemy_monsters) {
             emon.AddSkill(default_attack);
@@ -133,15 +145,16 @@ public class GameManager : MonoBehaviour
             string bm1 = action.attacker.param.name_ja + "の" + action.skill.param.name_ja + "！";
             CWM.SetBattleMessage1(bm1);
             int total_damage = action.HandleAction();
-            yield return new WaitForSeconds(1.5f);
+            if (!action.attacker.isEnemy) MM.UpDownPlayerMonsterWindow((PlayerMonster)action.attacker, 2.5f/SComM.battle_speed);
+            yield return new WaitForSeconds(1.5f/SComM.battle_speed);
             
             // 点滅・ステータス更新処理
             string bm2 = action.defender.param.name_ja +"は" + total_damage + "ダメージを受けた！";
             CWM.SetBattleMessage2(bm2);
-            StartCoroutine(MM.BlinkMonster(action.defender));
+            StartCoroutine(MM.BlinkMonster(action.defender, 0.2f/SComM.battle_speed));
             MM.UpdateStatusWindow();
             
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(1.5f/SComM.battle_speed);
             // 死んでいた場合の処理
             action.defender.CheckDead();
             action.attacker.CheckDead();
@@ -149,7 +162,7 @@ public class GameManager : MonoBehaviour
                 if (action.defender.isEnemy) action.defender.GetImage().enabled = false;
                 BM.ChangeActionTarget(action.defender);
             }
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.5f/SComM.battle_speed);
             if (action.attacker.isDead) BM.ChangeActionTarget(action.attacker);
 
             // 後処理
@@ -173,6 +186,8 @@ public class GameManager : MonoBehaviour
         BM.processing_battle = false;
     }
 
+    
+
     private void HandleCommandSelect(int command_id)
     {
         // 押されたコマンドブロック以外のブロックを非表示
@@ -187,11 +202,6 @@ public class GameManager : MonoBehaviour
                 } else {
                     Debug.LogError("Error: cannot detect who's turn");
                 }
-                // if (selecter == 0) {
-                //     select_monsters = new List<EnemyMonster>();
-                //     select_skills = new List<Skill>();
-                // }
-                // select_monster = 0;
                 break;
             case 1:
                 scene_type = SceneType.ITEM;
@@ -277,6 +287,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator FinishBattle()
     {
         if (isCalledEnding) yield break;
+        MM.ReviveMonsters();
         isCalledEnding = true;
         audio_source.Stop();
         switch (ending_type) {
@@ -303,6 +314,10 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         Vector3 mousePos;
+        if (Input.GetMouseButtonDown(0)) {
+            mousePos = Input.mousePosition;
+            SComM.HandleClickDoubleSpeeder(mousePos);
+        }
         switch (scene_type) {
             case SceneType.START:
                 if (!started) {
@@ -314,6 +329,7 @@ public class GameManager : MonoBehaviour
                     scene_type = SceneType.SELECT;
                     BM.StartTurn();
                     CWM.SetCommandsActive(true);
+                    SComM.SetSpeederActive(true);
                 }
                 break;
             case SceneType.SELECT:
@@ -329,7 +345,7 @@ public class GameManager : MonoBehaviour
 
                 // cursor点滅処理
                 if (wait_time <= 0){
-                    wait_time = cursor_blink_rate;
+                    wait_time = cursor_blink_rate/ SComM.battle_speed;
                     mousePos = Input.mousePosition;
                     MM.FocusEnemy(mousePos);
                 }
