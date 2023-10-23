@@ -2,28 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
-public class PlayerMove : MonoBehaviour
+public class MapManager : MonoBehaviour
 {
-    private Animator animator;
-    private Direction direction;
+    private static MapManager instance;
+    public static MapManager Instance => instance;
+
+    private MenuCanvasManager MCM;
+    private StatusCanvasManager SCM;
+
+    public string map_scene_name = "MapScene";
+
     private float steps;
     private float encount_steps;
+    public float speed = 0.02f;
 
     public float min_encount_steps;
     public float max_encout_steps;
     public int[] player_monster_id_list = {0, 1, 2, 6};
-
-    private double _time;
-    private Vector3 current_pos, next_pos;
-    public float input_interval_time = 0.1f;
-
-    // mapの領域（応急処置）
-    private float min_x;
-    private float min_y;
-    private float max_x;
-    private float max_y;
-
 
     public int num_player_monster;
     public List<PlayerMonster> player_monsters;
@@ -36,25 +31,36 @@ public class PlayerMove : MonoBehaviour
     // public AudioClip map_bgm;
     public AudioClip encount_enemy_sound;
 
+    public PlayerController PC;
+    public Vector3 player_position;
+    // 出入り口
+    public AreaDoor area_door;
 
-    public enum Direction
+    private void Awake()
     {
-        UP,
-        RIGHT,
-        DOWN,
-        LEFT,
+        // instanceがすでにあったら自分を消去する。
+        if (instance && this != instance)
+        {
+            Destroy(this.gameObject);
+        }
+
+        instance = this;
+        
+        // Scene遷移で破棄されなようにする。      
+        DontDestroyOnLoad(this);
     }
 
-    private void Start()
+    void Start()
     {
-        animator = GetComponent<Animator>();
-        audio_source = GetComponent<AudioSource>();
-        direction = Direction.DOWN;
-        steps = 0;
         encount_steps = Random.Range(min_encount_steps, max_encout_steps);
-        _time = 0;
-        current_pos = transform.position;
+        steps = 0;
+        audio_source = GetComponent<AudioSource>();
         audio_source.Play();
+        PC = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+        PC.speed = speed;
+        area_door = GameObject.Find("AreaDoor").GetComponent<AreaDoor>();
+
+        MCM = new MenuCanvasManager(GameObject.Find("MenuCanvas").GetComponent<Canvas>());
 
         monster_data = Resources.Load("monster_data") as MonsterData;
         skill_data = Resources.Load("skill_data") as SkillData;
@@ -77,10 +83,11 @@ public class PlayerMove : MonoBehaviour
             player_monster_skill_ids.Add(player_monster4_skill_ids);
             SetPlayerMonsters();
         }
-        min_x = -7.5f;
-        min_y = -3.5f;
-        max_x = 7.5f;
-        max_y = 3.5f;
+        PC.can_move = true;
+        Debug.Log(player_position);
+        if (player_position != new Vector3(0,0,0)) PC.transform.position = player_position;
+
+        SCM = new StatusCanvasManager(GameObject.Find("StatusCanvas").GetComponent<Canvas>(), player_monsters);
     }
 
     private void SetPlayerMonsters() 
@@ -100,13 +107,6 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    private bool OutMap(Vector3 pos) {
-        if (pos.x < min_x || pos.x > max_x || pos.y < min_y || pos.y > max_y) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     private void CallBattleScene()
     {
@@ -122,8 +122,41 @@ public class PlayerMove : MonoBehaviour
                 GameObject.FindWithTag("GameManager").GetComponent<GameManager>();
 
             // データを渡す処理
+            gameManager.player_position = player_position;
+            gameManager.map_scene_name = map_scene_name;
             gameManager.player_monsters = player_monsters;
+            Destroy(this.gameObject);
 
+            // イベントからメソッドを削除
+            SceneManager.sceneLoaded -= GameSceneLoaded;
+        }
+    }
+
+    public void MoveMapScene()
+    {
+        SceneManager.sceneLoaded += GameSceneLoaded;
+
+        SceneManager.LoadScene(area_door.next_area_scene);
+
+        void GameSceneLoaded(Scene next, LoadSceneMode mode)
+        {
+            map_scene_name = area_door.next_area_scene;
+            PlayerController pc = 
+                GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+
+            AreaDoor next_door = 
+                GameObject.Find(area_door.next_area_door).GetComponent<AreaDoor>();
+            
+            Canvas next_menu_canvas =
+                GameObject.Find("MenuCanvas").GetComponent<Canvas>();
+            pc.transform.position = next_door.transform.Find("NextPosition").transform.position;
+            pc.direction = next_door.next_direction;
+            pc.can_move = true;
+            pc.speed = speed;
+            steps = 0;
+            this.PC = pc;
+            this.area_door = next_door;
+            this.MCM = new MenuCanvasManager(next_menu_canvas);
             // イベントからメソッドを削除
             SceneManager.sceneLoaded -= GameSceneLoaded;
         }
@@ -135,67 +168,46 @@ public class PlayerMove : MonoBehaviour
         yield return new WaitForSeconds (1.0f);
         CallBattleScene();
     }
-    
 
+
+    // Update is called once per frame
     void Update()
     {
-        current_pos = transform.position;
-        _time += Time.deltaTime;
-        if (_time >= input_interval_time) {
-            if (Input.GetKey(KeyCode.UpArrow))//↑キーを押したら
-            {
-                direction = Direction.UP;
-                animator.SetInteger("direction",(int)direction);
-                next_pos = current_pos + new Vector3(0,1,0);
-                if (!OutMap(next_pos)) {
-                    transform.position = next_pos;
-                    steps += 1;
-                }
-                _time = 0;
+        if (area_door.fading) {
+            PC.can_move = false;
+        }
+        if (Input.GetMouseButtonDown(0)) {
+            Vector3 mousePos = Input.mousePosition;
+            // Menuのクリック処理
+            if (MCM.ClickMenuButton(mousePos)) {
+                MCM.HandleMenu();
             }
-            else if (Input.GetKey(KeyCode.RightArrow))
-            {
-                direction = Direction.RIGHT;
-                animator.SetInteger("direction", (int)direction);
-                next_pos = current_pos + new Vector3(1,0,0);
-                if (!OutMap(next_pos)) {
-                    transform.position = next_pos;
-                    steps += 1;
-                }
-                _time = 0;
+            else if (MCM.ClickSaveButton(mousePos)) {
+                MCM.HandleSave(this);
+                StartCoroutine(MCM.DisplaySavedMessage());
+            } else if (MCM.ClickStatusButton(mousePos)) {
+                SCM.OpenStatusWindow();
+                // statusとsaveボタンを非表示に
+                MCM.HandleMenu();
             }
-            else if (Input.GetKey(KeyCode.DownArrow))//↓キーを押したら
-            {
-                direction = Direction.DOWN;
-                animator.SetInteger("direction", (int)direction);
-                next_pos = current_pos + new Vector3(0,-1,0);
-                if (!OutMap(next_pos)) {
-                    transform.position = next_pos;
-                    steps += 1;
-                }
-                _time = 0;
-            }
-            else if (Input.GetKey(KeyCode.LeftArrow))//←キーを押したら
-            {
-                direction = Direction.LEFT;
-                animator.SetInteger("direction", (int)direction);
-                next_pos = current_pos + new Vector3(-1,0,0);
-                if (!OutMap(next_pos)) {
-                    transform.position = next_pos;
-                    steps += 1;
-                }
-                _time = 0;
+
+            // status windowを閉じる処理
+            SCM.CloseStatusWindow(mousePos);
+        }
+        if (Input.GetKey(KeyCode.D)) Debug.Log(area_door.next_area_scene);
+        if (PC.can_move) {
+            if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow) || 
+            Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.LeftArrow)) {
+                steps += speed;
+                player_position = PC.transform.position;
             }
             if (steps >= encount_steps) {
                 Debug.Log("Encount!!");
+                PC.can_move = false;
                 encount_steps = Random.Range(min_encount_steps, max_encout_steps);
                 steps = 0;
                 StartCoroutine("TransBattleScene");
-                _time = -100f;
             }
         }
     }
 }
-    
-
-

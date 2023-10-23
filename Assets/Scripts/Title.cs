@@ -33,9 +33,41 @@ public class Title : MonoBehaviour
             StartCoroutine("FadeAnimation");
         }
     }
+    
+    private void CallMapScene()
+    {
 
-    void CallMapScene() {
-        SceneManager.LoadScene("MapScene");
+        // セーブデータの引き出し、Mapシーンへ渡す
+        // マップの名前
+        string map_scene_name = PlayerPrefs.GetString("MapName", "MapScene");
+
+        // playerの位置
+        float posX = PlayerPrefs.GetFloat("PosX", -9.55f);
+        float posY = PlayerPrefs.GetFloat("PosY", 4.54f);
+        float posZ = PlayerPrefs.GetFloat("PosZ", 0f);
+        Vector3 pos = new Vector3(posX, posY, posZ);
+
+        // player monstersの情報
+        int num_monsters = PlayerPrefs.GetInt("NumMonsters", 4);
+        int[] monster_id_list = new int[num_monsters];
+        for (int i = 0; i < num_monsters; i++) {
+            monster_id_list[i] = PlayerPrefs.GetInt($"MonsterId{i}", i);
+        }
+        SceneManager.sceneLoaded += GameSceneLoaded;
+        SceneManager.LoadScene(map_scene_name);
+
+        void GameSceneLoaded(Scene next, LoadSceneMode mode)
+        {
+            // シーン切り替え後のスクリプトを取得
+            var gameManager = 
+                GameObject.FindWithTag("MapManager").GetComponent<MapManager>();
+
+            // データを渡す処理
+            gameManager.player_position = pos;
+            gameManager.player_monster_id_list = monster_id_list;
+
+            SceneManager.sceneLoaded -= GameSceneLoaded;
+        }
     }
 
     private IEnumerator FadeAnimation() {

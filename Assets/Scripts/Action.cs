@@ -19,7 +19,7 @@ public class Action
     public int CalAttackDamage() {
 
         //HP減る処理?
-
+        attacker.param.hp -= skill.param.loss_hp;
         int p_critical = 15;
         int r_critical = Random.Range(0, 100);
         int total_damage = 0;
@@ -28,7 +28,7 @@ public class Action
         if (r_critical >= p_critical) {
             int min_damage = Random.Range(0,2);
             r = Random.Range(90, 110);
-            float damage = ((float)skill.param.loss_hp / 100.0f + 1) * (((float)skill.param.power/ 100) * skill.param.num_attack * attacker.param.atk) / 2.0f;
+            float damage = (((float)skill.param.power/ 100) * skill.param.num_attack * attacker.param.atk) / 2.0f;
             Debug.Log("no defense damage = " + damage);
             damage -= (float)defender.param.def / 4;
             total_damage = (int)(damage * r / 100);
@@ -38,7 +38,7 @@ public class Action
         } else {
             r = Random.Range(110, 130);
             Debug.Log("クリティカルヒット！");
-            float damage = ((float)skill.param.loss_hp / 100.0f + 1) * (((float)skill.param.power / 100) * skill.param.num_attack * attacker.param.atk) / 2.0f;
+            float damage = (((float)skill.param.power / 100) * skill.param.num_attack * attacker.param.atk) / 2.0f;
             total_damage = (int)(damage * r / 100);
         }
         return total_damage;
@@ -48,14 +48,11 @@ public class Action
         int total_damage = 0;
         float r;
         int min_damage = Random.Range(0,2);
-        // 消費MPの計算
-        int loss_mp = (int)((float)attacker.max_mp * (float)skill.param.loss_mp / 100);
-        int virtual_def_loss_mp = (int)((float)defender.max_mp * (float)skill.param.loss_mp / 100);
 
         // 消費MPの反映
-        attacker.param.mp -= loss_mp;
+        attacker.param.mp -= skill.param.loss_mp;
 
-        float damage = loss_mp * ((float)skill.param.power/100) - virtual_def_loss_mp *((float)skill.param.power/400);
+        float damage = ((float)skill.param.power/100) *((float)skill.param.power/400) * ((float)(attacker.param.magic + 100)/(float)(defender.param.magic+100));
         r = Random.Range(95,105);
         total_damage = (int)(damage * r / 100);
         if (total_damage <= 0) {

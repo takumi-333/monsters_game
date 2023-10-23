@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
-  m_ObjectHideFlags: 8
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -22,6 +22,7 @@ MonoBehaviour:
       mp: 100
       atk: 3
       def: 12
+      magic: 5
       sp: 20
       exp: 1
       image_path: images/ocpern
@@ -33,6 +34,7 @@ MonoBehaviour:
       mp: 0
       atk: 20
       def: 30
+      magic: 0
       sp: 1
       exp: 100
       image_path: images/rocky
@@ -44,6 +46,7 @@ MonoBehaviour:
       mp: 20
       atk: 30
       def: 10
+      magic: 10
       sp: 5
       exp: 50
       image_path: images/cokbac
@@ -55,6 +58,7 @@ MonoBehaviour:
       mp: 20
       atk: 10
       def: 10
+      magic: 10
       sp: 30
       exp: 50
       image_path: images/cokbal
@@ -66,6 +70,7 @@ MonoBehaviour:
       mp: 200
       atk: 40
       def: 10
+      magic: 15
       sp: 100
       exp: 70
       image_path: images/ocblue
@@ -77,6 +82,7 @@ MonoBehaviour:
       mp: 15
       atk: 17
       def: 5
+      magic: 20
       sp: 20
       exp: 80
       image_path: images/butgene
@@ -88,6 +94,7 @@ MonoBehaviour:
       mp: 500
       atk: 12
       def: 4
+      magic: 50
       sp: 200
       exp: 150
       image_path: images/magicstar
@@ -99,6 +106,7 @@ MonoBehaviour:
       mp: 0
       atk: 45
       def: 20
+      magic: 5
       sp: 3
       exp: 300
       image_path: images/drapeam
@@ -110,6 +118,7 @@ MonoBehaviour:
       mp: 20
       atk: 15
       def: 10
+      magic: 10
       sp: 20
       exp: 50
       image_path: images/cookieman

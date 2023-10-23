@@ -48,11 +48,13 @@ public class Monster
         this.image = image;
     }
 
-    public RawImage GetImage() {
+    public RawImage GetImage() 
+    {
         return image;
     }
 
-    public void CheckDead() {
+    public void CheckDead() 
+    {
         if (param.hp <= 0) {
             Debug.Log("detect dead: " + param.name_ja + " died");
             isDead = true;
@@ -73,5 +75,23 @@ public class Monster
         {
             this.skills.Add(skills[i]);
         }
+    }
+
+    public bool CheckEnoughMp(int loss_mp)
+    {
+        if (param.mp >= loss_mp) return true;
+        else return false;
+    }
+
+    public bool CheckEnoughHp(int loss_hp)
+    {
+        if (param.hp >= loss_hp) return true;
+        else return false;
+    }
+
+    public bool CheckCanUseSkill(Skill skill)
+    {
+        if (CheckEnoughHp(skill.param.loss_hp) && CheckEnoughMp(skill.param.loss_mp)) return true;
+        else return false;
     }
 }

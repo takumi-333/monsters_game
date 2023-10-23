@@ -9,6 +9,8 @@ TagManager:
   - CommandCanvas
   - StatusWindowCanvas
   - EnemyCanvas
+  - SideCommandCanvas
+  - MapManager
   layers:
   - Default
   - TransparentFX

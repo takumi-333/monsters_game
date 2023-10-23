@@ -44,8 +44,9 @@ public class GameManager : MonoBehaviour
 
     private bool isCalledEnding;
 
-
-    
+    // MAPに戻る時に必要な情報
+    public string map_scene_name;
+    public Vector3 player_position;
 
     void Start()
     {
@@ -268,16 +269,17 @@ public class GameManager : MonoBehaviour
             // イベントにメソッドを登録
             SceneManager.sceneLoaded += GameSceneLoaded;
 
-            SceneManager.LoadScene("MapScene");
+            SceneManager.LoadScene(map_scene_name);
 
         void GameSceneLoaded(Scene next, LoadSceneMode mode)
         {
             // シーン切り替え後のスクリプトを取得
             var gameManager = 
-                GameObject.FindWithTag("Player").GetComponent<PlayerMove>();
+                GameObject.FindWithTag("MapManager").GetComponent<MapManager>();
 
             // データを渡す処理
             gameManager.player_monsters = player_monsters;
+            gameManager.player_position = player_position;
 
             // イベントからメソッドを削除
             SceneManager.sceneLoaded -= GameSceneLoaded;
@@ -375,7 +377,7 @@ public class GameManager : MonoBehaviour
                             CancelCommandSelect();
                             break;
                         }
-                        Skill select_skill = SCM.SelectSkill(mousePos);
+                        Skill select_skill = SCM.SelectSkill(mousePos, BM.selecter_monster);
                         
                         // スキルが選択されたときの処理
                         if (select_skill != null) {
