@@ -13,6 +13,7 @@ public class Title : MonoBehaviour
     private Animator anim;
     private GameObject FadeCurtain;
     private AudioSource audio_source;
+    private SaveDataManager SDM;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,6 +22,7 @@ public class Title : MonoBehaviour
         anim = FadeCurtain.GetComponent<Animator>();
         screen_size = Screen.GetComponent<RectTransform>().sizeDelta;
         audio_source = GetComponent<AudioSource>();
+        SDM = new SaveDataManager();
     }
 
     // Update is called once per frame
@@ -48,11 +50,7 @@ public class Title : MonoBehaviour
         Vector3 pos = new Vector3(posX, posY, posZ);
 
         // player monstersの情報
-        int num_monsters = PlayerPrefs.GetInt("NumMonsters", 4);
-        int[] monster_id_list = new int[num_monsters];
-        for (int i = 0; i < num_monsters; i++) {
-            monster_id_list[i] = PlayerPrefs.GetInt($"MonsterId{i}", i);
-        }
+        SaveMonsterData load_data = SDM.Load();
         SceneManager.sceneLoaded += GameSceneLoaded;
         SceneManager.LoadScene(map_scene_name);
 
@@ -64,7 +62,8 @@ public class Title : MonoBehaviour
 
             // データを渡す処理
             gameManager.player_position = pos;
-            gameManager.player_monster_id_list = monster_id_list;
+            // gameManager.player_monster_id_list = monster_id_list;
+            gameManager.load_data = load_data;
 
             SceneManager.sceneLoaded -= GameSceneLoaded;
         }

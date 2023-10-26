@@ -9,6 +9,7 @@ public class MapManager : MonoBehaviour
 
     private MenuCanvasManager MCM;
     private StatusCanvasManager SCM;
+    private SaveDataManager SDM;
 
     public string map_scene_name = "MapScene";
 
@@ -18,12 +19,16 @@ public class MapManager : MonoBehaviour
 
     public float min_encount_steps;
     public float max_encout_steps;
-    public int[] player_monster_id_list = {0, 1, 2, 6};
+    public int[] player_monster_id_list = {1, 2, 2, 6};
+    public int[] player_monster_level_list  = {1,1,2,3};
+    public SaveMonsterData load_data;
 
     public int num_player_monster;
     public List<PlayerMonster> player_monsters;
+
     private MonsterData monster_data;
     private SkillData skill_data;
+    private EachMonsterData each_monster_data;
 
     private List<List<int>> player_monster_skill_ids;
 
@@ -36,20 +41,6 @@ public class MapManager : MonoBehaviour
     // 出入り口
     public AreaDoor area_door;
 
-    private void Awake()
-    {
-        // instanceがすでにあったら自分を消去する。
-        if (instance && this != instance)
-        {
-            Destroy(this.gameObject);
-        }
-
-        instance = this;
-        
-        // Scene遷移で破棄されなようにする。      
-        DontDestroyOnLoad(this);
-    }
-
     void Start()
     {
         encount_steps = Random.Range(min_encount_steps, max_encout_steps);
@@ -61,48 +52,90 @@ public class MapManager : MonoBehaviour
         area_door = GameObject.Find("AreaDoor").GetComponent<AreaDoor>();
 
         MCM = new MenuCanvasManager(GameObject.Find("MenuCanvas").GetComponent<Canvas>());
+        SDM = new SaveDataManager();
 
         monster_data = Resources.Load("monster_data") as MonsterData;
         skill_data = Resources.Load("skill_data") as SkillData;
+        each_monster_data = Resources.Load("each_monster_data") as EachMonsterData;
+
+        // モンスターがいればnum_player_monsterはplayer_monstersの数に設定
         if(player_monsters != null) {
             num_player_monster = player_monsters.Count;
-        } else {
-            num_player_monster = player_monster_id_list.Length;
         }
+        /* 
+        * モンスターがいない場合
+        * load_dataがある->monster_datasがある->num_player_monster, player_monstersのセット
+        * load_dataがある->monster_datasがない->初期データを作成する
+        * load_dataがnull->初期データを作成する
+        */
         if (player_monsters == null) {
+            // player_monstersのlist生成
             player_monsters = new List<PlayerMonster>();
+            if (load_data != null) {
+                if (load_data.monster_datas.Length == 0) {
+                    num_player_monster = 1;
+                    MonsterData.Param param = monster_data.sheets[0].list.Find(monster=>monster.id == 1);
+                    EachMonsterData.Param u_param = each_monster_data.sheets.Find(sheet=>sheet.name=="1").list.Find(param=>param.lv==1);
+                    PlayerMonster player_monster = new  PlayerMonster(u_param, param);
+                    player_monsters.Add(player_monster);
+                }else {
+                    num_player_monster = load_data.monster_datas.Length;
+                    SetPlayerMonsters();
+                }
+            }
+            else {
+                num_player_monster = 1;
+                MonsterData.Param param = monster_data.sheets[0].list.Find(monster=>monster.id == 1);
+                EachMonsterData.Param u_param = each_monster_data.sheets.Find(sheet=>sheet.name=="1").list.Find(param=>param.lv==1);
+                PlayerMonster player_monster = new  PlayerMonster(u_param, param);
+                player_monsters.Add(player_monster);
+            }
+            
             // 仮の形式
-            player_monster_skill_ids = new List<List<int>>();
-            List<int> player_monster1_skill_ids = new List<int>(){1,2,3};
-            player_monster_skill_ids.Add(player_monster1_skill_ids);
-            List<int> player_monster2_skill_ids = new List<int>(){1,2,3,4,5,6,7,8,9,10,11,12,13};
-            player_monster_skill_ids.Add(player_monster2_skill_ids);
-            List<int> player_monster3_skill_ids = new List<int>(){1,2,5,6,7};
-            player_monster_skill_ids.Add(player_monster3_skill_ids);
-            List<int> player_monster4_skill_ids = new List<int>(){8,9,13};
-            player_monster_skill_ids.Add(player_monster4_skill_ids);
-            SetPlayerMonsters();
+            // List<int> player_monster1_skill_ids = new List<int>(){1,2,3};
+            // player_monster_skill_ids.Add(player_monster1_skill_ids);
+            // List<int> player_monster2_skill_ids = new List<int>(){1,2,3,4,5,6,7,8,9,10,11,12,13};
+            // player_monster_skill_ids.Add(player_monster2_skill_ids);
+            // List<int> player_monster3_skill_ids = new List<int>(){1,2,5,6,7};
+            // player_monster_skill_ids.Add(player_monster3_skill_ids);
+            // List<int> player_monster4_skill_ids = new List<int>(){8,9,13};
+            // player_monster_skill_ids.Add(player_monster4_skill_ids);
         }
+
         PC.can_move = true;
-        Debug.Log(player_position);
+        // player_positionが存在すれば、そこに配置
         if (player_position != new Vector3(0,0,0)) PC.transform.position = player_position;
 
-        SCM = new StatusCanvasManager(GameObject.Find("StatusCanvas").GetComponent<Canvas>(), player_monsters);
+        SCM = new StatusCanvasManager(GameObject.Find("StatusCanvas").GetComponent<Canvas>());
     }
 
+    // Title sceneからload_dataを受け取った時に生成
     private void SetPlayerMonsters() 
     {
+        EachMonsterData.Param player_monster_u_param;
         MonsterData.Param player_monster_param;
+        SaveMonsterData.PlayerMonsterData data;
         PlayerMonster monster;
+        // List<Skill> skills = new List<Skill>();
         for (int i = 0; i < num_player_monster; i++) {
-            player_monster_param = monster_data.sheets[0].list.Find(monster=> monster.id == player_monster_id_list[i]);
-            monster = new PlayerMonster(player_monster_param);
-            List<Skill> skills = new List<Skill>();
-            for (int j = 0; j < player_monster_skill_ids[i].Count; j++)
-            {
-                Skill add_skill = new Skill(skill_data.sheets[0].list.Find(skill=> skill.id  == player_monster_skill_ids[i][j]));
-            }
-            monster.SetSkills(skills);
+            data = load_data.monster_datas[i];
+            player_monster_param = monster_data.sheets[0].list.Find(monster=> monster.id == data.id);
+            player_monster_u_param = each_monster_data.sheets.Find(sheet => sheet.name == data.id.ToString()).list.Find(param => param.lv == data.level);
+            monster = new PlayerMonster(player_monster_u_param, player_monster_param);
+
+            // load_dataからセット
+            monster.level = data.level;
+            monster.name_ja = data.name_ja;
+            monster.uuid = data.uuid;
+            monster.need_exp = data.need_exp;
+            monster.total_exp = data.total_exp;
+            monster.now_exp = data.now_exp;
+            
+            // for (int j = 0; j < player_monster_skill_ids[i].Count; j++)
+            // {
+            //     Skill add_skill = new Skill(skill_data.sheets[0].list.Find(skill=> skill.id  == player_monster_skill_ids[i][j]));
+            // }
+            // monster.SetSkills(skills);
             player_monsters.Add(monster);
         }
     }
@@ -125,11 +158,31 @@ public class MapManager : MonoBehaviour
             gameManager.player_position = player_position;
             gameManager.map_scene_name = map_scene_name;
             gameManager.player_monsters = player_monsters;
-            Destroy(this.gameObject);
 
             // イベントからメソッドを削除
             SceneManager.sceneLoaded -= GameSceneLoaded;
         }
+    }
+
+    private void InitThis()
+    {
+        // map_scene_name = area_door.next_area_scene;
+        PlayerController pc = 
+            GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+
+        MapManager MM =
+            GameObject.FindWithTag("MapManager").GetComponent<MapManager>();
+        AreaDoor next_door = 
+            GameObject.Find(area_door.next_area_door).GetComponent<AreaDoor>();
+        
+        pc.transform.position = next_door.transform.Find("NextPosition").transform.position;
+        pc.direction = next_door.next_direction;
+        MM.steps = 0;
+        MM.player_monsters = player_monsters;
+        MM.PC = pc;
+        MM.area_door = next_door;
+        // MM.MCM = new MenuCanvasManager(GameObject.Find("MenuCanvas").GetComponent<Canvas>());
+        // MM.SCM = new StatusCanvasManager(GameObject.Find("StatusCanvas").GetComponent<Canvas>());
     }
 
     public void MoveMapScene()
@@ -140,24 +193,7 @@ public class MapManager : MonoBehaviour
 
         void GameSceneLoaded(Scene next, LoadSceneMode mode)
         {
-            map_scene_name = area_door.next_area_scene;
-            PlayerController pc = 
-                GameObject.FindWithTag("Player").GetComponent<PlayerController>();
-
-            AreaDoor next_door = 
-                GameObject.Find(area_door.next_area_door).GetComponent<AreaDoor>();
-            
-            Canvas next_menu_canvas =
-                GameObject.Find("MenuCanvas").GetComponent<Canvas>();
-            pc.transform.position = next_door.transform.Find("NextPosition").transform.position;
-            pc.direction = next_door.next_direction;
-            pc.can_move = true;
-            pc.speed = speed;
-            steps = 0;
-            this.PC = pc;
-            this.area_door = next_door;
-            this.MCM = new MenuCanvasManager(next_menu_canvas);
-            // イベントからメソッドを削除
+            InitThis();
             SceneManager.sceneLoaded -= GameSceneLoaded;
         }
     }
@@ -187,6 +223,7 @@ public class MapManager : MonoBehaviour
                 StartCoroutine(MCM.DisplaySavedMessage());
             } else if (MCM.ClickStatusButton(mousePos)) {
                 SCM.OpenStatusWindow();
+                SCM.SetPlayerMonstersStatus(player_monsters);
                 // statusとsaveボタンを非表示に
                 MCM.HandleMenu();
             }
@@ -208,6 +245,11 @@ public class MapManager : MonoBehaviour
                 steps = 0;
                 StartCoroutine("TransBattleScene");
             }
+        }
+
+        if (Input.GetKey(KeyCode.A)) {
+            SaveMonsterData load_data = MCM.GetSaveData();
+            Debug.Log(load_data.monster_datas.Length);
         }
     }
 }

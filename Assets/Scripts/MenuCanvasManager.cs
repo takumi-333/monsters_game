@@ -12,6 +12,8 @@ public class MenuCanvasManager
     private GameObject status;
     private GameObject saved;
     private TextMeshProUGUI saved_message;
+    private SaveMonsterData save_data;
+    private SaveDataManager SDM;
     private bool saving = false;
     
     public MenuCanvasManager(Canvas canvas)
@@ -22,6 +24,7 @@ public class MenuCanvasManager
         status = canvas.transform.Find("StatusButton").gameObject;
         saved = canvas.transform.Find("SavedText").gameObject;
         saved_message = saved.transform.Find("Message").GetComponent<TextMeshProUGUI>();
+        SDM = new SaveDataManager();
         save.SetActive(false);
         status.SetActive(false);
         saved.SetActive(false);
@@ -52,10 +55,14 @@ public class MenuCanvasManager
         PlayerPrefs.SetString("MapName", MM.map_scene_name);
 
         // monster info
-        PlayerPrefs.SetInt("NumMonsters", MM.player_monsters.Count);
-        for (int i  = 0; i < MM.player_monsters.Count; i++) {
-            PlayerPrefs.SetInt($"MonsterId{i}", MM.player_monster_id_list[i]);
-        }
+        // PlayerPrefs.SetInt("NumMonsters", MM.player_monsters.Count);
+        // for (int i  = 0; i < MM.player_monsters.Count; i++) {
+        //     PlayerPrefs.SetInt($"MonsterId{i}", MM.player_monster_id_list[i]);
+        // }
+        save_data = new SaveMonsterData(MM.player_monsters);
+        save_data.SetMonsterData(MM.player_monsters);
+        SDM.Save(save_data);
+        Debug.Log("save_path = " + SDM.file_path);
     }
 
     public IEnumerator DisplaySavedMessage()
@@ -105,6 +112,11 @@ public class MenuCanvasManager
             return true;
         }
         return false;
+    }
+
+    public SaveMonsterData GetSaveData()
+    {
+        return SDM.Load();
     }
 
 }

@@ -1,18 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+// using System.Diagnostics;
+using System;
 using UnityEngine.UI;
 
 public class Monster
 {
     public bool isEnemy = false;
-    public MonsterData.Param param;
+    // public EachMonsterData.Param param;
     public Action action;
     protected RawImage image;
     public List<Skill> skills;
+
+    // status
+    public string uuid;
+    public int id;
     public int max_hp;
     public int max_mp;
     public int level;
+    public int hp;
+    public int mp;
+    public int atk;
+    public int def;
+    public int sp;
+    public int magic;
+    public string image_path;
+    public string name_ja;
+    public int exp;
     protected State state;
     public bool isDead;
 
@@ -25,15 +40,37 @@ public class Monster
         Sleep,
     }
     
-    public Monster(MonsterData.Param param) {
-        this.param =  param.ShallowCopy();
-        max_hp = param.hp;
-        max_mp = param.mp;
+    public Monster(EachMonsterData.Param u_param, MonsterData.Param param) {
+        InitStatus(u_param, param);
+
+        // 各モンスター特有のuuidを取得
+        Guid UUID = Guid.NewGuid();
+        string convertedUUID = UUID.ToString();
+        uuid = convertedUUID;
         skills = new List<Skill>();
         image = null;
         state = State.None;
         level = 1;
         isDead = false;
+    }
+
+    private void InitStatus(EachMonsterData.Param u_param, MonsterData.Param param)
+    {
+        // monsterdata から
+        id = param.id;
+        image_path = param.image_path;
+        name_ja = param.name_ja;
+
+        // each monster dataから
+        max_hp = u_param.hp;
+        max_mp = u_param.mp;
+        hp = u_param.hp;
+        mp = u_param.mp;
+        atk = u_param.atk;
+        def = u_param.def;
+        magic = u_param.magic;
+        sp = u_param.sp;
+        exp = u_param.exp;
     }
 
     public void SetAction(Action action) {
@@ -55,8 +92,8 @@ public class Monster
 
     public void CheckDead() 
     {
-        if (param.hp <= 0) {
-            Debug.Log("detect dead: " + param.name_ja + " died");
+        if (hp <= 0) {
+            Debug.Log("detect dead: " + name_ja + " died");
             isDead = true;
             return;
         }
@@ -79,13 +116,13 @@ public class Monster
 
     public bool CheckEnoughMp(int loss_mp)
     {
-        if (param.mp >= loss_mp) return true;
+        if (mp >= loss_mp) return true;
         else return false;
     }
 
     public bool CheckEnoughHp(int loss_hp)
     {
-        if (param.hp >= loss_hp) return true;
+        if (hp >= loss_hp) return true;
         else return false;
     }
 

@@ -15,7 +15,7 @@ MonoBehaviour:
   sheets:
   - name: Sheet1
     list:
-    - id: 0
+    - id: 1
       name_ja: "\u30AA\u30AF\u30D1\u30FC\u30CA"
       name_en: ocpern
       hp: 55
@@ -27,7 +27,7 @@ MonoBehaviour:
       exp: 1
       image_path: images/ocpern
       weight: 0
-    - id: 1
+    - id: 2
       name_ja: "\u30ED\u30C3\u30AD\u30FC"
       name_en: rocky
       hp: 10
@@ -39,7 +39,7 @@ MonoBehaviour:
       exp: 100
       image_path: images/rocky
       weight: 50
-    - id: 2
+    - id: 3
       name_ja: "\u30AF\u30C3\u30AD\u30FC\u30DE\u30F3"
       name_en: cokbac
       hp: 30
@@ -51,7 +51,7 @@ MonoBehaviour:
       exp: 50
       image_path: images/cokbac
       weight: 80
-    - id: 3
+    - id: 4
       name_ja: "\u30AF\u30C3\u30AD\u30FC\u30DE\u30F3"
       name_en: cokbal
       hp: 30
@@ -63,7 +63,7 @@ MonoBehaviour:
       exp: 50
       image_path: images/cokbal
       weight: 80
-    - id: 4
+    - id: 5
       name_ja: "\u30AA\u30AF\u30D6\u30EB\u30FC"
       name_en: ocblue
       hp: 65
@@ -75,7 +75,7 @@ MonoBehaviour:
       exp: 70
       image_path: images/ocblue
       weight: 20
-    - id: 5
+    - id: 6
       name_ja: "\u30D0\u30BF\u30B8\u30FC\u30F3"
       name_en: butgene
       hp: 45
@@ -87,7 +87,7 @@ MonoBehaviour:
       exp: 80
       image_path: images/butgene
       weight: 40
-    - id: 6
+    - id: 7
       name_ja: "\u30DE\u30B8\u30C3\u30AF\u30B9\u30BF\u30FC"
       name_en: magicstar
       hp: 40
@@ -99,7 +99,7 @@ MonoBehaviour:
       exp: 150
       image_path: images/magicstar
       weight: 40
-    - id: 7
+    - id: 8
       name_ja: "\u30C9\u30E9\u30D4\u30FC\u30DE\u30F3"
       name_en: drapeam
       hp: 80
@@ -111,7 +111,7 @@ MonoBehaviour:
       exp: 300
       image_path: images/drapeam
       weight: 20
-    - id: 8
+    - id: 9
       name_ja: "\u30AF\u30C3\u30AD\u30FC\u30DE\u30F3"
       name_en: cookieman
       hp: 30

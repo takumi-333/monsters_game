@@ -22,8 +22,9 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         animator = GetComponent<Animator>();
-        direction = Direction.DOWN;
+        animator.SetInteger("direction", (int)direction);
     }
+
 
     void Update()
     {

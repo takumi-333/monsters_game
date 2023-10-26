@@ -11,6 +11,7 @@ public class MonsterManager
     // public List<EnemyMonster> dead_enemy_monsters;
 
     private MonsterData monster_data;
+    private EachMonsterData each_monster_data;
     private SkillData skill_data;
 
     private Canvas status_window_canvas;
@@ -43,6 +44,7 @@ public class MonsterManager
         num_dead_enemy_monsters = 0;
 
         monster_data = Resources.Load("monster_data") as MonsterData;
+        each_monster_data = Resources.Load("each_monster_data") as EachMonsterData;
         skill_data = Resources.Load("skill_data") as SkillData;
 
         status_windows = new List<GameObject>();
@@ -61,6 +63,7 @@ public class MonsterManager
         }
     }
 
+
     // プレイヤーのモンスターを受け取り、ステータスウィンドウに表示
     public void SetPlayerMonsters(List<PlayerMonster> player_monsters) 
     {
@@ -73,8 +76,8 @@ public class MonsterManager
         }
 
         for (int i = 0; i < num_player_monsters; i++) {
-            status_windows[i].transform.Find("NameText").GetComponent<TextMeshProUGUI>().text = player_monsters[i].param.name_ja;
-            status_windows[i].transform.Find("MonsterImage").GetComponent<RawImage>().texture = Resources.Load<Texture2D>(player_monsters[i].param.image_path);
+            status_windows[i].transform.Find("NameText").GetComponent<TextMeshProUGUI>().text = player_monsters[i].name_ja;
+            status_windows[i].transform.Find("MonsterImage").GetComponent<RawImage>().texture = Resources.Load<Texture2D>(player_monsters[i].image_path);
             UpdateStatusWindow();
         }
     }
@@ -83,15 +86,15 @@ public class MonsterManager
     public EnemyMonster GenerateMonsterByWeight() 
     {
         int total_weight = 0;
-        MonsterData.Param monster_param;
+        EachMonsterData.Param monster_param;
         for (int i = 0; i < monster_data.sheets[0].list.Count; i++) {
             total_weight += monster_data.sheets[0].list[i].weight;
         }
         int r = Random.Range(1, total_weight);
         for (int i = 0; i < monster_data.sheets[0].list.Count; i++) {
             if (r < monster_data.sheets[0].list[i].weight) {
-                monster_param = monster_data.sheets[0].list[i];
-                return new EnemyMonster(monster_param);
+                monster_param = each_monster_data.sheets.Find(sheet => sheet.name == monster_data.sheets[0].list[i].id.ToString()).list[0];
+                return new EnemyMonster(monster_param, monster_data.sheets[0].list[i]);
             }
             r -= monster_data.sheets[0].list[i].weight;
         }
@@ -133,7 +136,7 @@ public class MonsterManager
                 enemy_objects[i].GetComponent<RectTransform>().anchorMin = anchors[i][0];
                 enemy_objects[i].GetComponent<RectTransform>().anchorMax = anchors[i][1];
             }
-            enemy_monster.GetImage().texture = Resources.Load<Texture2D> (enemy_monster.param.image_path);
+            enemy_monster.GetImage().texture = Resources.Load<Texture2D> (enemy_monster.image_path);
             enemy_monsters.Add(enemy_monster);
         }
     }
@@ -255,9 +258,9 @@ public class MonsterManager
         float hp_ratio;
         foreach(PlayerMonster player_monster in player_monsters) {
             status_window = player_monster.GetStatusWindow();
-            hp_ratio = (float)player_monster.param.hp / (float)player_monster.max_hp;
-            status_window.transform.Find("HpText").GetComponent<TextMeshProUGUI>().text = "HP: " + player_monster.param.hp;
-            status_window.transform.Find("MpText").GetComponent<TextMeshProUGUI>().text = "MP: " + player_monster.param.mp;
+            hp_ratio = (float)player_monster.hp / (float)player_monster.max_hp;
+            status_window.transform.Find("HpText").GetComponent<TextMeshProUGUI>().text = "HP: " + player_monster.hp;
+            status_window.transform.Find("MpText").GetComponent<TextMeshProUGUI>().text = "MP: " + player_monster.mp;
             if (hp_ratio > 0.5f) {
                 continue;
             } 
@@ -287,8 +290,39 @@ public class MonsterManager
         foreach(PlayerMonster player_monster in player_monsters) {
             if (player_monster.isDead) {
                 player_monster.isDead = false;
-                player_monster.param.hp += 1;
+                player_monster.hp += 1;
             }
+        }
+    }
+
+    // monster１体のレベルアップ処理
+    public void HandleLevelUp(PlayerMonster player_monster, int obtain_exp)
+    {
+        player_monster.level_up = false;
+        player_monster.now_exp += obtain_exp;
+        player_monster.total_exp += obtain_exp;
+        if (player_monster.now_exp > player_monster.need_exp) player_monster.level_up = true;
+        while (player_monster.now_exp >= player_monster.need_exp) {
+            player_monster.now_exp -= player_monster.need_exp;
+            player_monster.level++;
+            player_monster.need_exp = each_monster_data.sheets.Find(sheet=>sheet.name==player_monster.id.ToString()).list.Find(param=>param.lv==player_monster.level).need_exp;
+        }
+        player_monster.SetNewStatus(each_monster_data.sheets.Find(sheet=>sheet.name==player_monster.id.ToString()).list.Find(param=>param.lv==player_monster.level));
+    }
+
+    public void HandleExpProcess()
+    {
+        int obtain_exp = 0;
+        foreach (EnemyMonster enemy_monster in enemy_monsters) {
+            obtain_exp += enemy_monster.exp;
+        }
+        foreach (PlayerMonster player_monster in player_monsters) {
+            if (!player_monster.isDead) {
+                HandleLevelUp(player_monster, obtain_exp);
+            }
+            // if(HandleLevelUp(player_monster, obtain_exp)) {
+            //     Debug.Log(player_monster.name_ja + "のレベルがアップ" + player_monster.level);
+            // }
         }
     }
 }

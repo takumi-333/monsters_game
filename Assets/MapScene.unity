@@ -7963,7 +7963,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &724071030
 PrefabInstance:
@@ -8118,7 +8118,10 @@ MonoBehaviour:
   speed: 0.02
   min_encount_steps: 40
   max_encout_steps: 70
-  player_monster_id_list: 00000000010000000200000006000000
+  player_monster_id_list: 01000000010000000200000006000000
+  player_monster_level_list: 01000000010000000200000003000000
+  load_data:
+    monster_datas: []
   num_player_monster: 0
   encount_enemy_sound: {fileID: 8300000, guid: 9023eefecd7244847a6454d50396a87c, type: 3}
   PC: {fileID: 0}
@@ -8137,7 +8140,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &923263176
 AudioSource:
@@ -13401,7 +13404,7 @@ Transform:
   - {fileID: 1279925711}
   - {fileID: 1731468678}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1673610454
 PrefabInstance:
@@ -13705,7 +13708,7 @@ RectTransform:
   - {fileID: 446841036}
   - {fileID: 1053585174}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
