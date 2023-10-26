@@ -34,9 +34,9 @@ public class BattleManager
     {
         string startMessage;
         if (MM.num_enemy_monsters == 1) {
-            startMessage = MM.enemy_monsters[0].param.name_ja + "が現れた！";
+            startMessage = MM.enemy_monsters[0].name_ja + "が現れた！";
         } else if (MM.num_enemy_monsters > 1) {
-            startMessage = MM.enemy_monsters[0].param.name_ja + "たちが現れた！";
+            startMessage = MM.enemy_monsters[0].name_ja + "たちが現れた！";
         } else {
             startMessage = "";
             Debug.Log("Error: モンスター出現エラー");
@@ -143,7 +143,7 @@ public class BattleManager
                 all_monsters.Add(MM.enemy_monsters[i]);
             }
         }
-        all_monsters.Sort((m1,m2) => m2.param.sp - m1.param.sp);
+        all_monsters.Sort((m1,m2) => m2.sp - m1.sp);
         for (int i = 0; i < all_monsters.Count; i++) {
             action_order.Add(all_monsters[i].GetAction());
         }
@@ -165,4 +165,6 @@ public class BattleManager
         }
         return true;
     }
+
+    
 }

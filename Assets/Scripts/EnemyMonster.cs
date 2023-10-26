@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnemyMonster : Monster
 {
-    public EnemyMonster(MonsterData.Param param) : base (param){
+    public EnemyMonster(EachMonsterData.Param u_param, MonsterData.Param param) : base (u_param, param){
         isEnemy = true;
     }
 }

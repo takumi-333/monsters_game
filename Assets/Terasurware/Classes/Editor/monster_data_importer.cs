@@ -57,10 +57,11 @@ public class monster_data_importer : AssetPostprocessor {
 					cell = row.GetCell(4); p.mp = (int)(cell == null ? 0 : cell.NumericCellValue);
 					cell = row.GetCell(5); p.atk = (int)(cell == null ? 0 : cell.NumericCellValue);
 					cell = row.GetCell(6); p.def = (int)(cell == null ? 0 : cell.NumericCellValue);
-					cell = row.GetCell(7); p.sp = (int)(cell == null ? 0 : cell.NumericCellValue);
-					cell = row.GetCell(8); p.exp = (int)(cell == null ? 0 : cell.NumericCellValue);
-					cell = row.GetCell(9); p.image_path = (cell == null ? "" : cell.StringCellValue);
-					cell = row.GetCell(10); p.weight = (int)(cell == null ? 0 : cell.NumericCellValue);
+					cell = row.GetCell(7); p.magic = (int)(cell == null ? 0 : cell.NumericCellValue);
+					cell = row.GetCell(8); p.sp = (int)(cell == null ? 0 : cell.NumericCellValue);
+					cell = row.GetCell(9); p.exp = (int)(cell == null ? 0 : cell.NumericCellValue);
+					cell = row.GetCell(10); p.image_path = (cell == null ? "" : cell.StringCellValue);
+					cell = row.GetCell(11); p.weight = (int)(cell == null ? 0 : cell.NumericCellValue);
 						s.list.Add (p);
 					}
 					data.sheets.Add(s);

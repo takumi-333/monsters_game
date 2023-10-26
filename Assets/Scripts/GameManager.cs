@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -43,9 +44,11 @@ public class GameManager : MonoBehaviour
     public AudioClip escape_sound;
 
     private bool isCalledEnding;
+    private bool levelUp;
 
-
-    
+    // MAPに戻る時に必要な情報
+    public string map_scene_name;
+    public Vector3 player_position;
 
     void Start()
     {
@@ -75,25 +78,25 @@ public class GameManager : MonoBehaviour
         Skill attack1 = new Skill(skill_data.sheets[0].list[1]);
         Skill attack2 = new Skill(skill_data.sheets[0].list[2]);
         Skill attack3 = new Skill(skill_data.sheets[0].list[3]);
-        if (player_monsters == null) {
-            player_monsters = new List<PlayerMonster>();
-            int[] player_monster_ids = new int[]{0,1,2,3};
-            MonsterData.Param pMonster_param;
-            PlayerMonster monster;
-            for (int i = 0; i < 4; i++)
-            {
-                pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == player_monster_ids[i]);
-                monster = new PlayerMonster(pMonster_param);
+        // if (player_monsters == null) {
+        //     player_monsters = new List<PlayerMonster>();
+        //     int[] player_monster_ids = new int[]{0,1,2,3};
+        //     MonsterData.Param pMonster_param;
+        //     PlayerMonster monster;
+        //     for (int i = 0; i < 4; i++)
+        //     {
+        //         pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == player_monster_ids[i]);
+        //         monster = new PlayerMonster(pMonster_param);
 
-                // debug用ゆえ後で消す
-                monster.AddSkill(default_attack);
-                monster.AddSkill(attack1);
-                monster.AddSkill(attack2);
-                monster.AddSkill(attack3);
-                // monster.SetSkills(pMonster_skill_ids[i], skill_data);
-                player_monsters.Add(monster);
-            }
-        }
+        //         // debug用ゆえ後で消す
+        //         monster.AddSkill(default_attack);
+        //         monster.AddSkill(attack1);
+        //         monster.AddSkill(attack2);
+        //         monster.AddSkill(attack3);
+        //         // monster.SetSkills(pMonster_skill_ids[i], skill_data);
+        //         player_monsters.Add(monster);
+        //     }
+        // }
        
         foreach(EnemyMonster emon in MM.enemy_monsters) {
             emon.AddSkill(default_attack);
@@ -107,6 +110,7 @@ public class GameManager : MonoBehaviour
         cursor_blink_rate = 0.3f;
         started = false;
         isCalledEnding = false;
+        levelUp = false;
     }
 
     public enum SceneType
@@ -142,14 +146,14 @@ public class GameManager : MonoBehaviour
 
             // 計算処理
             Action action = BM.action_order[0];
-            string bm1 = action.attacker.param.name_ja + "の" + action.skill.param.name_ja + "！";
+            string bm1 = action.attacker.name_ja + "の" + action.skill.param.name_ja + "！";
             CWM.SetBattleMessage1(bm1);
             int total_damage = action.HandleAction();
             if (!action.attacker.isEnemy) MM.UpDownPlayerMonsterWindow((PlayerMonster)action.attacker, 2.5f/SComM.battle_speed);
             yield return new WaitForSeconds(1.5f/SComM.battle_speed);
             
             // 点滅・ステータス更新処理
-            string bm2 = action.defender.param.name_ja +"は" + total_damage + "ダメージを受けた！";
+            string bm2 = action.defender.name_ja +"は" + total_damage + "ダメージを受けた！";
             CWM.SetBattleMessage2(bm2);
             StartCoroutine(MM.BlinkMonster(action.defender, 0.2f/SComM.battle_speed));
             MM.UpdateStatusWindow();
@@ -268,20 +272,57 @@ public class GameManager : MonoBehaviour
             // イベントにメソッドを登録
             SceneManager.sceneLoaded += GameSceneLoaded;
 
-            SceneManager.LoadScene("MapScene");
+            SceneManager.LoadScene(map_scene_name);
 
         void GameSceneLoaded(Scene next, LoadSceneMode mode)
         {
             // シーン切り替え後のスクリプトを取得
             var gameManager = 
-                GameObject.FindWithTag("Player").GetComponent<PlayerMove>();
+                GameObject.FindWithTag("MapManager").GetComponent<MapManager>();
 
             // データを渡す処理
             gameManager.player_monsters = player_monsters;
+            gameManager.player_position = player_position;
 
             // イベントからメソッドを削除
             SceneManager.sceneLoaded -= GameSceneLoaded;
         }
+    }
+
+    public IEnumerator LevelUpMessage() 
+    {
+        levelUp = true;
+        List<TextMeshProUGUI> level_up_texts = new List<TextMeshProUGUI>();
+        foreach(PlayerMonster player_monster in MM.player_monsters) {
+            if (player_monster.level_up) {
+                TextMeshProUGUI text = player_monster.GetStatusWindow().transform.Find("LevelUpText").GetComponent<TextMeshProUGUI>();
+                text.gameObject.SetActive(true);
+                level_up_texts.Add(text);
+            }
+        }
+        if (level_up_texts.Count == 0) {
+            levelUp = false;
+            yield break;
+        }
+        string level_up_message = "レベルアップ！";
+        int i = 0;
+        // 初期化
+        foreach (TextMeshProUGUI level_up_text in level_up_texts) {
+            level_up_text.text = "";
+        }
+        while(i < level_up_message.Length) {
+            foreach (TextMeshProUGUI level_up_text in level_up_texts) {
+                level_up_text.text += level_up_message[i];
+            }
+            i++;
+            Debug.Log(i);
+            yield return new WaitForSeconds(0.1f);
+        }
+        yield return new WaitForSeconds(1.0f);
+        foreach (TextMeshProUGUI level_up_text in level_up_texts) {
+            level_up_text.enabled = false;
+        }
+        levelUp = false;
     }
 
     private IEnumerator FinishBattle()
@@ -293,6 +334,9 @@ public class GameManager : MonoBehaviour
         switch (ending_type) {
             case EndingType.WIN:
                 CWM.SetBattleMessage1("戦いに勝利した!");
+                MM.HandleExpProcess();
+                StartCoroutine("LevelUpMessage");
+                yield return new WaitUntil(() => levelUp);
                 audio_source.PlayOneShot(win_sound);
                 break;
             case EndingType.LOSE:
@@ -375,7 +419,7 @@ public class GameManager : MonoBehaviour
                             CancelCommandSelect();
                             break;
                         }
-                        Skill select_skill = SCM.SelectSkill(mousePos);
+                        Skill select_skill = SCM.SelectSkill(mousePos, BM.selecter_monster);
                         
                         // スキルが選択されたときの処理
                         if (select_skill != null) {

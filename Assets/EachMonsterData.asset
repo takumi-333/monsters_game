@@ -1,0 +1,239 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 8
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef4b477c63e84400495b0ec2147acfc7, type: 3}
+  m_Name: EachMonsterData
+  m_EditorClassIdentifier: 
+  sheets:
+  - name: 1
+    list:
+    - lv: 1
+      hp: 30
+      mp: 20
+      atk: 10
+      def: 5
+      magic: 10
+      sp: 20
+      exp: 30
+      need_exp: 15
+      total_exp: 15
+      skill_point: 0
+    - lv: 2
+      hp: 32
+      mp: 21
+      atk: 11
+      def: 6
+      magic: 11
+      sp: 23
+      exp: 30
+      need_exp: 18
+      total_exp: 33
+      skill_point: 0
+    - lv: 3
+      hp: 34
+      mp: 22
+      atk: 12
+      def: 7
+      magic: 12
+      sp: 25
+      exp: 30
+      need_exp: 21
+      total_exp: 54
+      skill_point: 5
+    - lv: 4
+      hp: 36
+      mp: 24
+      atk: 14
+      def: 8
+      magic: 16
+      sp: 30
+      exp: 30
+      need_exp: 24
+      total_exp: 78
+      skill_point: 0
+    - lv: 5
+      hp: 38
+      mp: 26
+      atk: 16
+      def: 9
+      magic: 18
+      sp: 35
+      exp: 30
+      need_exp: 30
+      total_exp: 108
+      skill_point: 5
+    - lv: 6
+      hp: 40
+      mp: 28
+      atk: 18
+      def: 10
+      magic: 24
+      sp: 42
+      exp: 30
+      need_exp: 36
+      total_exp: 144
+      skill_point: 0
+    - lv: 7
+      hp: 44
+      mp: 32
+      atk: 21
+      def: 12
+      magic: 29
+      sp: 52
+      exp: 30
+      need_exp: 42
+      total_exp: 186
+      skill_point: 5
+    - lv: 8
+      hp: 48
+      mp: 40
+      atk: 24
+      def: 14
+      magic: 34
+      sp: 60
+      exp: 30
+      need_exp: 51
+      total_exp: 237
+      skill_point: 0
+    - lv: 9
+      hp: 52
+      mp: 48
+      atk: 27
+      def: 16
+      magic: 40
+      sp: 66
+      exp: 30
+      need_exp: 60
+      total_exp: 297
+      skill_point: 7
+    - lv: 10
+      hp: 60
+      mp: 60
+      atk: 31
+      def: 20
+      magic: 50
+      sp: 78
+      exp: 30
+      need_exp: 70
+      total_exp: 367
+      skill_point: 10
+  - name: 2
+    list:
+    - lv: 1
+      hp: 30
+      mp: 20
+      atk: 10
+      def: 5
+      magic: 10
+      sp: 20
+      exp: 30
+      need_exp: 15
+      total_exp: 15
+      skill_point: 0
+    - lv: 2
+      hp: 32
+      mp: 21
+      atk: 11
+      def: 6
+      magic: 11
+      sp: 23
+      exp: 30
+      need_exp: 18
+      total_exp: 33
+      skill_point: 0
+    - lv: 3
+      hp: 34
+      mp: 22
+      atk: 12
+      def: 7
+      magic: 12
+      sp: 25
+      exp: 30
+      need_exp: 21
+      total_exp: 54
+      skill_point: 5
+    - lv: 4
+      hp: 36
+      mp: 24
+      atk: 14
+      def: 8
+      magic: 16
+      sp: 30
+      exp: 30
+      need_exp: 24
+      total_exp: 78
+      skill_point: 0
+    - lv: 5
+      hp: 38
+      mp: 26
+      atk: 16
+      def: 9
+      magic: 18
+      sp: 35
+      exp: 30
+      need_exp: 30
+      total_exp: 108
+      skill_point: 5
+    - lv: 6
+      hp: 40
+      mp: 28
+      atk: 18
+      def: 10
+      magic: 24
+      sp: 42
+      exp: 30
+      need_exp: 36
+      total_exp: 144
+      skill_point: 0
+    - lv: 7
+      hp: 44
+      mp: 32
+      atk: 21
+      def: 12
+      magic: 29
+      sp: 52
+      exp: 30
+      need_exp: 42
+      total_exp: 186
+      skill_point: 5
+    - lv: 8
+      hp: 48
+      mp: 40
+      atk: 24
+      def: 14
+      magic: 34
+      sp: 60
+      exp: 30
+      need_exp: 51
+      total_exp: 237
+      skill_point: 0
+    - lv: 9
+      hp: 52
+      mp: 48
+      atk: 27
+      def: 16
+      magic: 40
+      sp: 66
+      exp: 30
+      need_exp: 60
+      total_exp: 297
+      skill_point: 7
+    - lv: 10
+      hp: 60
+      mp: 60
+      atk: 31
+      def: 20
+      magic: 50
+      sp: 78
+      exp: 30
+      need_exp: 70
+      total_exp: 367
+      skill_point: 10

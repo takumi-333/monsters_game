@@ -39,7 +39,6 @@ public class SecondCanvasManager
         toRight = window.transform.Find("Right").gameObject;
         escape_cross = window.transform.Find("EscapeCross").gameObject;
 
-        // items[0].gameObject.SetActive(true);
     }
 
     public void OpenSkillWindow(Monster monster) 
@@ -150,7 +149,7 @@ public class SecondCanvasManager
         return false;
     }
 
-    public Skill SelectSkill(Vector3 mousePos)
+    public Skill SelectSkill(Vector3 mousePos, Monster monster)
     {
         // 選ぶ選択肢がない場合
         if (items[0].item_text.enabled == false) {
@@ -166,8 +165,26 @@ public class SecondCanvasManager
             if ((relativeMousePos.x >= -(item_block_size.x / 2) && relativeMousePos.x <= item_block_size.x / 2) &&
             (relativeMousePos.y >= -(item_block_size.y / 2) && relativeMousePos.y <= item_block_size.y / 2)
             ) {
-                canvas.gameObject.SetActive(false);
-                return items[i].skill;
+                bool enough_mp = monster.CheckEnoughMp(items[i].skill.param.loss_mp);
+                bool enough_hp = monster.CheckEnoughHp(items[i].skill.param.loss_hp);
+                if (enough_hp && enough_mp)
+                {
+                    canvas.gameObject.SetActive(false);
+                    return items[i].skill;
+                } 
+                else if (!enough_hp)
+                {
+                    // HP足りないよ
+                    return null;
+                }
+                else if (!enough_mp)
+                {
+                    // MP足りないよ
+                    return null;
+                } else {
+                
+                    return null;
+                }
             }
         }
         return null;
