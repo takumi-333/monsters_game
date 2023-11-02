@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviour
 
     private bool isCalledEnding;
     private bool levelUp;
+    private bool add_monster;
 
     // MAPに戻る時に必要な情報
     public string map_scene_name;
@@ -64,7 +65,7 @@ public class GameManager : MonoBehaviour
 
         // 各Managerのセット
         CWM = new CommandWindowManager(command_canvas);
-        MM = new MonsterManager(status_window_canvas, enemy_canvas);
+        MM = new MonsterManager(status_window_canvas, enemy_canvas, map_scene_name);
         SCM = new SecondCanvasManager(second_canvas);
         SComM = new SideCommandManager(side_command_canvas);
         MM.SetEnemyMonsters();
@@ -78,25 +79,7 @@ public class GameManager : MonoBehaviour
         Skill attack1 = new Skill(skill_data.sheets[0].list[1]);
         Skill attack2 = new Skill(skill_data.sheets[0].list[2]);
         Skill attack3 = new Skill(skill_data.sheets[0].list[3]);
-        // if (player_monsters == null) {
-        //     player_monsters = new List<PlayerMonster>();
-        //     int[] player_monster_ids = new int[]{0,1,2,3};
-        //     MonsterData.Param pMonster_param;
-        //     PlayerMonster monster;
-        //     for (int i = 0; i < 4; i++)
-        //     {
-        //         pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == player_monster_ids[i]);
-        //         monster = new PlayerMonster(pMonster_param);
-
-        //         // debug用ゆえ後で消す
-        //         monster.AddSkill(default_attack);
-        //         monster.AddSkill(attack1);
-        //         monster.AddSkill(attack2);
-        //         monster.AddSkill(attack3);
-        //         // monster.SetSkills(pMonster_skill_ids[i], skill_data);
-        //         player_monsters.Add(monster);
-        //     }
-        // }
+        
        
         foreach(EnemyMonster emon in MM.enemy_monsters) {
             emon.AddSkill(default_attack);
@@ -111,6 +94,7 @@ public class GameManager : MonoBehaviour
         started = false;
         isCalledEnding = false;
         levelUp = false;
+        add_monster = false;
     }
 
     public enum SceneType
@@ -122,6 +106,7 @@ public class GameManager : MonoBehaviour
         SPECIAL,
         ESCAPE,
         PROCESS,
+        TAME,
         END,
     }
 
@@ -163,7 +148,10 @@ public class GameManager : MonoBehaviour
             action.defender.CheckDead();
             action.attacker.CheckDead();
             if (action.defender.isDead) {
-                if (action.defender.isEnemy) action.defender.GetImage().enabled = false;
+                if (action.defender.isEnemy) {
+                    action.defender.GetImage().enabled = false;
+                    MM.dead_enemy_monsters.Add((EnemyMonster)action.defender);
+                }
                 BM.ChangeActionTarget(action.defender);
             }
             yield return new WaitForSeconds(0.5f/SComM.battle_speed);
@@ -315,7 +303,6 @@ public class GameManager : MonoBehaviour
                 level_up_text.text += level_up_message[i];
             }
             i++;
-            Debug.Log(i);
             yield return new WaitForSeconds(0.1f);
         }
         yield return new WaitForSeconds(1.0f);
@@ -333,16 +320,34 @@ public class GameManager : MonoBehaviour
         audio_source.Stop();
         switch (ending_type) {
             case EndingType.WIN:
+                audio_source.PlayOneShot(win_sound);
                 CWM.SetBattleMessage1("戦いに勝利した!");
                 MM.HandleExpProcess();
                 StartCoroutine("LevelUpMessage");
                 yield return new WaitUntil(() => levelUp);
-                audio_source.PlayOneShot(win_sound);
+                CWM.ClearAllMessage();
+                // 仲間にすることができる
+                EnemyMonster new_monster = BM.CheckCanAddMonster();
+                if (new_monster != null) {
+                    new_monster.GetImage().enabled = true;
+                    CWM.SetBattleMessage1(new_monster.name_ja + "を仲間にできます");
+                    CWM.DisplayTameMessage();
+                    CWM.taming = true;
+                    scene_type = SceneType.TAME;
+                    yield return new WaitWhile(() => CWM.taming);
+                    // 「仲間にする」を選択
+                    if (add_monster) {
+                        player_monsters.Add(MM.ChangeToPlayerMonster(new_monster));
+                    }
+                }
                 break;
             case EndingType.LOSE:
                 CWM.SetBattleMessage1("全滅してしまった...");
                 audio_source.PlayOneShot(lose_sound);
-                break;
+                yield return new WaitWhile(() => audio_source.isPlaying);
+                yield return new WaitForSeconds(0.2f);
+                SceneManager.LoadScene("TitleScene");
+                yield break;
             case EndingType.ESCAPE:
                 CWM.SetBattleMessage1("逃走した！");
                 audio_source.PlayOneShot(escape_sound);
@@ -448,6 +453,51 @@ public class GameManager : MonoBehaviour
                 break;
             case SceneType.END:
                 StartCoroutine("FinishBattle");
+                break;
+                
+            case SceneType.TAME:
+                if (CWM.taming) {
+
+                    // 仲間にするcursorの点滅処理
+                    wait_time -= Time.deltaTime;
+                    if (wait_time <= 0){
+                        wait_time = cursor_blink_rate/ SComM.battle_speed;
+                        if (CWM.focus_cursor == null) {
+                            foreach(Image cursor in CWM.tame_cursors) {
+                                cursor.enabled = false;
+                            }
+                        }
+                        if (CWM.focus_cursor != null) {
+                            foreach(Image cursor in CWM.tame_cursors) {
+                                if (cursor != CWM.focus_cursor) {
+                                    cursor.enabled = false;
+                                } else {
+                                    cursor.enabled = !cursor.enabled;
+                                }
+                            }
+                        }
+                    }
+                    mousePos = Input.mousePosition;
+                    CWM.SelectTameMessage(mousePos);
+                    if (Input.GetMouseButtonDown(0) && CWM.focus_cursor != null) {
+                        CWM.taming = false;
+
+                        // この処理はCWMの関数として書くべき
+                        if (CWM.focus_cursor == CWM.tame_cursors[0]) {
+                            add_monster = true;
+                        } else {
+                            add_monster = false;
+                        }
+                    }
+                    if (Input.GetKey(KeyCode.Y)) {
+                        CWM.taming = false;
+                        add_monster = true;
+                    }
+                    if (Input.GetKey(KeyCode.N)) {
+                        CWM.taming = false;
+                        add_monster = false;
+                    }
+                }
                 break;
             default:
                 break;

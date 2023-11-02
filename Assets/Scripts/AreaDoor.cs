@@ -57,6 +57,7 @@ public class AreaDoor : MonoBehaviour
     {
         if(other.tag == "Player")
         {   
+            MM.area_door = this;
             StartCoroutine("fade_out");
             // shouldLoadAfterFade = true;
             // GameManager.instance.fadingBetweenAreas = true;

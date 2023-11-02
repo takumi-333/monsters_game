@@ -14,6 +14,7 @@ public class PlayerMonster : Monster
     public bool isFocus = false;
     public bool level_up = false;
 
+
     public PlayerMonster(EachMonsterData.Param u_param, MonsterData.Param param) : base (u_param, param) {
         isEnemy = false;
         need_exp = u_param.need_exp;

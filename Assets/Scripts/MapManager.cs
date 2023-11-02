@@ -10,6 +10,7 @@ public class MapManager : MonoBehaviour
     private MenuCanvasManager MCM;
     private StatusCanvasManager SCM;
     private SaveDataManager SDM;
+    private MessageWindowManager MWM;
 
     public string map_scene_name = "MapScene";
 
@@ -19,8 +20,6 @@ public class MapManager : MonoBehaviour
 
     public float min_encount_steps;
     public float max_encout_steps;
-    public int[] player_monster_id_list = {1, 2, 2, 6};
-    public int[] player_monster_level_list  = {1,1,2,3};
     public SaveMonsterData load_data;
 
     public int num_player_monster;
@@ -49,10 +48,11 @@ public class MapManager : MonoBehaviour
         audio_source.Play();
         PC = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
         PC.speed = speed;
-        area_door = GameObject.Find("AreaDoor").GetComponent<AreaDoor>();
+        // area_door = GameObject.Find("AreaDoor").GetComponent<AreaDoor>();
 
         MCM = new MenuCanvasManager(GameObject.Find("MenuCanvas").GetComponent<Canvas>());
         SDM = new SaveDataManager();
+        MWM = new MessageWindowManager(GameObject.FindWithTag("MessageWindowCanvas").GetComponent<Canvas>());
 
         monster_data = Resources.Load("monster_data") as MonsterData;
         skill_data = Resources.Load("skill_data") as SkillData;
@@ -209,8 +209,10 @@ public class MapManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (area_door.fading) {
-            PC.can_move = false;
+        if (area_door != null) {
+            if (area_door.fading) {
+                PC.can_move = false;
+            }
         }
         if (Input.GetMouseButtonDown(0)) {
             Vector3 mousePos = Input.mousePosition;
@@ -231,7 +233,6 @@ public class MapManager : MonoBehaviour
             // status windowを閉じる処理
             SCM.CloseStatusWindow(mousePos);
         }
-        if (Input.GetKey(KeyCode.D)) Debug.Log(area_door.next_area_scene);
         if (PC.can_move) {
             if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow) || 
             Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.LeftArrow)) {

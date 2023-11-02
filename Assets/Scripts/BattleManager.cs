@@ -107,7 +107,6 @@ public class BattleManager
         }
     }
 
-
     public void SetEnemyActions()
     {
         List<PlayerMonster> player_alive_monsters = new List<PlayerMonster>();
@@ -166,5 +165,22 @@ public class BattleManager
         return true;
     }
 
-    
+    public EnemyMonster CheckCanAddMonster()
+    {
+        bool can_tame = MM.dead_enemy_monsters[MM.dead_enemy_monsters.Count-1].CheckTamed();
+        if (can_tame) {
+            // 仲間のモンスターが3体以下である
+            if (MM.player_monsters.Count <= 3) {
+                return MM.dead_enemy_monsters[MM.dead_enemy_monsters.Count-1];
+            }
+
+            // 牧場に空きがある
+
+            return null;
+        } else {
+            return null;
+        }
+    }
+
+
 }

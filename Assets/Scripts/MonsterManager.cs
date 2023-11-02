@@ -5,14 +5,17 @@ using UnityEngine.UI;
 using TMPro;
 public class MonsterManager
 {
+    private string map_scene_name;
+
     public List<PlayerMonster> player_monsters;
     public List<EnemyMonster> enemy_monsters;
     // public List<PlayerMonster> dead_player_monsters;
-    // public List<EnemyMonster> dead_enemy_monsters;
+    public List<EnemyMonster> dead_enemy_monsters;
 
     private MonsterData monster_data;
     private EachMonsterData each_monster_data;
     private SkillData skill_data;
+    private MapMonsterData map_monster_data;
 
     private Canvas status_window_canvas;
     private Canvas enemy_canvas;
@@ -31,21 +34,23 @@ public class MonsterManager
 
 
 
-    public MonsterManager(Canvas status_window_canvas, Canvas enemy_canvas)
+    public MonsterManager(Canvas status_window_canvas, Canvas enemy_canvas, string map_scene_name)
     {
         this.status_window_canvas = status_window_canvas;
         this.enemy_canvas = enemy_canvas;
+        this.map_scene_name = map_scene_name;
 
         player_monsters = new List<PlayerMonster>();
         enemy_monsters = new List<EnemyMonster>();
         // dead_player_monsters = new List<PlayerMonster>();
-        // dead_enemy_monsters = new List<EnemyMonster>();
+        dead_enemy_monsters = new List<EnemyMonster>();
         num_dead_player_monsters = 0;
         num_dead_enemy_monsters = 0;
 
         monster_data = Resources.Load("monster_data") as MonsterData;
         each_monster_data = Resources.Load("each_monster_data") as EachMonsterData;
         skill_data = Resources.Load("skill_data") as SkillData;
+        map_monster_data = Resources.Load("map_monster_data") as MapMonsterData;
 
         status_windows = new List<GameObject>();
         enemy_objects = new List<GameObject>();
@@ -85,21 +90,26 @@ public class MonsterManager
     // 出現するモンスターを出現確率から決定
     public EnemyMonster GenerateMonsterByWeight() 
     {
+        MapMonsterData.Sheet map_monster_data_sheet = map_monster_data.sheets.Find(sheet=>sheet.name==map_scene_name);
         int total_weight = 0;
         EachMonsterData.Param monster_param;
-        for (int i = 0; i < monster_data.sheets[0].list.Count; i++) {
-            total_weight += monster_data.sheets[0].list[i].weight;
+        EnemyMonster enemy_monster;
+        for (int i = 0; i < map_monster_data_sheet.list.Count; i++) {
+            total_weight += map_monster_data_sheet.list[i].weight;
         }
         int r = Random.Range(1, total_weight);
-        for (int i = 0; i < monster_data.sheets[0].list.Count; i++) {
-            if (r < monster_data.sheets[0].list[i].weight) {
-                monster_param = each_monster_data.sheets.Find(sheet => sheet.name == monster_data.sheets[0].list[i].id.ToString()).list[0];
-                return new EnemyMonster(monster_param, monster_data.sheets[0].list[i]);
+        for (int i = 0; i < map_monster_data_sheet.list.Count; i++) {
+            if (r < map_monster_data_sheet.list[i].weight) {
+                monster_param = each_monster_data.sheets.Find(sheet => sheet.name == map_monster_data_sheet.list[i].id.ToString()).list.Find(param=>param.lv == map_monster_data_sheet.list[i].level);
+                enemy_monster = new EnemyMonster(monster_param, monster_data.sheets[0].list.Find(param=>param.id==map_monster_data_sheet.list[i].id));
+                enemy_monster.friendly = map_monster_data_sheet.list[i].friendly;
+                return enemy_monster;
             }
-            r -= monster_data.sheets[0].list[i].weight;
+            r -= map_monster_data_sheet.list[i].weight;
         }
         return null;
     }
+
 
     // 1~4体の敵を生成し、画像をセット
     public void SetEnemyMonsters()
@@ -324,5 +334,13 @@ public class MonsterManager
             //     Debug.Log(player_monster.name_ja + "のレベルがアップ" + player_monster.level);
             // }
         }
+    }
+
+    public PlayerMonster ChangeToPlayerMonster(EnemyMonster enemy_monster)
+    {
+        EachMonsterData.Param u_param = each_monster_data.sheets.Find(sheet=>sheet.name==enemy_monster.id.ToString()).list.Find(param=>param.lv==enemy_monster.level);
+        MonsterData.Param param = monster_data.sheets[0].list.Find(param=>param.id==enemy_monster.id);
+        PlayerMonster player_monster = new PlayerMonster(u_param, param);
+        return player_monster;
     }
 }

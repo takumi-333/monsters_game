@@ -19,6 +19,16 @@ public class PlayerController : MonoBehaviour
         LEFT,
     }
 
+    public void StopWalking()
+    {
+        animator.speed = 0;
+    }
+
+    public void StartWalking()
+    {
+        animator.speed = 1;
+    }
+
     private void Start()
     {
         animator = GetComponent<Animator>();
