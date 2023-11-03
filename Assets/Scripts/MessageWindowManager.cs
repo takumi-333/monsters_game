@@ -80,7 +80,7 @@ public class MessageWindowManager
             if (!skip) yield return new WaitForSeconds (0.1f);
             else yield return new WaitForSeconds(0.01f);
         }
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(0.25f);
         displaying = false;
         skip = false;
     }
@@ -98,7 +98,7 @@ public class MessageWindowManager
             if (!skip) yield return new WaitForSeconds (0.1f);
             else yield return new WaitForSeconds(0.01f);
         }
-        yield return new WaitForSeconds (1.0f);
+        yield return new WaitForSeconds (0.25f);
         displaying = false;
         skip = false;
     }
@@ -106,12 +106,13 @@ public class MessageWindowManager
     public void DisplaySelectWindow()
     {
         select_window.SetActive(true);
+        Debug.Log(focus_cursor.enabled);
     }
 
-    public void SelectMessage(Vector3 mousePos) {
+    public bool SelectMessage(Vector3 mousePos) {
         Rect message_size;
         Vector3 relativeMousePos;
-        if (select_window.activeSelf == false) return;
+        if (select_window.activeSelf == false) return false;
         for(int i = 0; i < select_messages.Count; i++) {
             message_size = select_messages[i].gameObject.GetComponent<RectTransform>().rect;
             relativeMousePos = select_messages[i].transform.InverseTransformPoint(mousePos);
@@ -126,9 +127,10 @@ public class MessageWindowManager
                     select_cursors[0].enabled = false;
                     select_answer = false;
                 }
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     public void ToggleAnswer()

@@ -54,6 +54,7 @@ public class TalkEvent : MonoBehaviour
             MWM.focus_cursor.enabled = !MWM.focus_cursor.enabled;
             yield return new WaitForSeconds(0.15f);
         }
+        blinking = false;
     }
 
     void Update()
@@ -83,11 +84,33 @@ public class TalkEvent : MonoBehaviour
             // 一回だけ呼ばれる
             StartCoroutine("BlinkSelectCursor");
             MWM.SelectMessage(mousePos);
-            if (Input.GetKey(KeyCode.Return) || Input.GetMouseButtonDown(0)) {
+            if (Input.GetMouseButtonDown(0))
+            {
+                // はい or いいえをクリック
+                if (MWM.SelectMessage(mousePos)) {
+                    answering = false;
+                    talking = false;
+                    if (MWM.select_answer) {
+                        FEM = gameObject.AddComponent<FarmEventManager>();
+                    } else {
+                        MM.PC.can_move = true;
+                        MM.PC.StartWalking();
+                    }
+                    MWM.ClearAll();
+                }
+            }
+            if (Input.GetKey(KeyCode.Return)) {
                 answering = false;
                 talking = false;
                 // この結果をeventに渡す
                 Debug.Log((MWM.select_answer?"Yes":"No") + "が選ばれた");
+                if (MWM.select_answer) {
+                    FEM = gameObject.AddComponent<FarmEventManager>();
+                } else {
+                    // playerは動き出せる
+                    MM.PC.can_move = true;
+                    MM.PC.StartWalking();
+                }
                 MWM.ClearAll();
             }
             if (Input.GetKey(KeyCode.UpArrow)) {

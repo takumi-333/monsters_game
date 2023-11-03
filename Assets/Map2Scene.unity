@@ -1421,7 +1421,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   map_scene_name: Map2Scene
-  speed: 0.02
+  steps: 0
+  speed: 0.1
   min_encount_steps: 40
   max_encout_steps: 50
   load_data:
@@ -1431,6 +1432,8 @@ MonoBehaviour:
   PC: {fileID: 0}
   player_position: {x: 0, y: 0, z: 0}
   area_door: {fileID: 0}
+  event1_flg: 0
+  event2_flg: 0
 --- !u!1 &663142819
 GameObject:
   m_ObjectHideFlags: 0

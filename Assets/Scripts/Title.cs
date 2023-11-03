@@ -41,12 +41,13 @@ public class Title : MonoBehaviour
 
         // セーブデータの引き出し、Mapシーンへ渡す
         // マップの名前
-        string map_scene_name = PlayerPrefs.GetString("MapName", "MapScene");
+        string map_scene_name = PlayerPrefs.GetString("MapName", "FirstMapScene");
 
         // playerの位置
-        float posX = PlayerPrefs.GetFloat("PosX", -9.55f);
-        float posY = PlayerPrefs.GetFloat("PosY", 4.54f);
+        float posX = PlayerPrefs.GetFloat("PosX", 0f);
+        float posY = PlayerPrefs.GetFloat("PosY", 0f);
         float posZ = PlayerPrefs.GetFloat("PosZ", 0f);
+        int event1_flg = PlayerPrefs.GetInt("Event1", 1);
         Vector3 pos = new Vector3(posX, posY, posZ);
 
         // player monstersの情報
@@ -64,6 +65,7 @@ public class Title : MonoBehaviour
             gameManager.player_position = pos;
             // gameManager.player_monster_id_list = monster_id_list;
             gameManager.load_data = load_data;
+            gameManager.event1_flg = event1_flg;
 
             SceneManager.sceneLoaded -= GameSceneLoaded;
         }

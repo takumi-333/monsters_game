@@ -49,3 +49,6 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: FarmWindow
+    uniqueID: 2527207669
+    locked: 0

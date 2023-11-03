@@ -10,7 +10,7 @@ using NPOI.SS.UserModel;
 public class EachMonsterData_importer : AssetPostprocessor {
 	private static readonly string filePath = "Assets/EachMonsterData.xls";
 	private static readonly string exportPath = "Assets/Resources/each_monster_data.asset";
-	private static readonly string[] sheetNames = { "1","2","3","4","5","6","7","8","9", };
+	private static readonly string[] sheetNames = { "1","2","3","4","5","6","7","8","9", "10","11","12","13","14"};
 	
 	static void OnPostprocessAllAssets (string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
 	{

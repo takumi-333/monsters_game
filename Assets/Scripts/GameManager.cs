@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
     private SideCommandManager SComM;
 
     public List<PlayerMonster> player_monsters;
-    private List<EnemyMonster> enemy_monsters;
+    public List<EnemyMonster> enemy_monsters;
 
     private bool focus_flg;
     private MonsterData monster_data;
@@ -42,6 +42,7 @@ public class GameManager : MonoBehaviour
     public AudioClip win_sound;
     public AudioClip lose_sound;
     public AudioClip escape_sound;
+    public AudioClip boss_bgm;
 
     private bool isCalledEnding;
     private bool levelUp;
@@ -51,10 +52,17 @@ public class GameManager : MonoBehaviour
     public string map_scene_name;
     public Vector3 player_position;
 
+    public int event2_flg;
+    public bool lose_event = false;
+    public bool boss_battle = false;
+
     void Start()
     {
         // コンポーネントの取得
         audio_source = GetComponent<AudioSource>();
+        if (boss_battle) {
+            audio_source.clip = boss_bgm;
+        }
         audio_source.Play();
         scene_type = SceneType.START;
         command_canvas = GameObject.FindWithTag("CommandCanvas").GetComponent<Canvas>();
@@ -68,7 +76,7 @@ public class GameManager : MonoBehaviour
         MM = new MonsterManager(status_window_canvas, enemy_canvas, map_scene_name);
         SCM = new SecondCanvasManager(second_canvas);
         SComM = new SideCommandManager(side_command_canvas);
-        MM.SetEnemyMonsters();
+        
         BM = new BattleManager(MM);
 
         skill_data = Resources.Load("skill_data") as SkillData;
@@ -80,14 +88,17 @@ public class GameManager : MonoBehaviour
         Skill attack2 = new Skill(skill_data.sheets[0].list[2]);
         Skill attack3 = new Skill(skill_data.sheets[0].list[3]);
         
-       
+        MM.SetPlayerMonsters(player_monsters);
+        if (enemy_monsters == null) {
+            enemy_monsters = MM.enemy_monsters;
+        }
+        else {
+            MM.enemy_monsters = enemy_monsters;
+        }
+        MM.SetEnemyMonsters();
         foreach(EnemyMonster emon in MM.enemy_monsters) {
             emon.AddSkill(default_attack);
         }
-
-        MM.SetPlayerMonsters(player_monsters);
-        enemy_monsters = MM.enemy_monsters;
-
 
         wait_time = 0;
         cursor_blink_rate = 0.3f;
@@ -271,6 +282,8 @@ public class GameManager : MonoBehaviour
             // データを渡す処理
             gameManager.player_monsters = player_monsters;
             gameManager.player_position = player_position;
+            Debug.Log(event2_flg);
+            gameManager.event2_flg = event2_flg;
 
             // イベントからメソッドを削除
             SceneManager.sceneLoaded -= GameSceneLoaded;
@@ -305,7 +318,7 @@ public class GameManager : MonoBehaviour
             i++;
             yield return new WaitForSeconds(0.1f);
         }
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(0.75f);
         foreach (TextMeshProUGUI level_up_text in level_up_texts) {
             level_up_text.enabled = false;
         }
@@ -324,11 +337,12 @@ public class GameManager : MonoBehaviour
                 CWM.SetBattleMessage1("戦いに勝利した!");
                 MM.HandleExpProcess();
                 StartCoroutine("LevelUpMessage");
-                yield return new WaitUntil(() => levelUp);
+                yield return new WaitUntil(() => !levelUp);
                 CWM.ClearAllMessage();
-                // 仲間にすることができる
                 EnemyMonster new_monster = BM.CheckCanAddMonster();
+                // 仲間にすることができる
                 if (new_monster != null) {
+                    Debug.Log("monsterが起き上がった！");
                     new_monster.GetImage().enabled = true;
                     CWM.SetBattleMessage1(new_monster.name_ja + "を仲間にできます");
                     CWM.DisplayTameMessage();
@@ -337,8 +351,25 @@ public class GameManager : MonoBehaviour
                     yield return new WaitWhile(() => CWM.taming);
                     // 「仲間にする」を選択
                     if (add_monster) {
-                        player_monsters.Add(MM.ChangeToPlayerMonster(new_monster));
+                        PlayerMonster new_player_monster = MM.ChangeToPlayerMonster(new_monster);
+                        if (player_monsters.Count < 4) {
+                            player_monsters.Add(new_player_monster);
+                        } else {
+                            FarmDataManager FDM = new FarmDataManager();
+                            FarmData farm_data = FDM.Load();
+                            if (farm_data == null) {
+                                farm_data = new FarmData();
+                            }
+                            farm_data.AddMonsterData(new_player_monster);
+                            FDM.Save(farm_data);
+
+                            SaveDataManager SDM = new SaveDataManager();
+                            SaveMonsterData save_data = new SaveMonsterData(player_monsters);
+                            save_data.SetMonsterData(player_monsters);
+                            SDM.Save(save_data);
+                        }
                     }
+                    new_monster = null;
                 }
                 break;
             case EndingType.LOSE:
@@ -346,8 +377,11 @@ public class GameManager : MonoBehaviour
                 audio_source.PlayOneShot(lose_sound);
                 yield return new WaitWhile(() => audio_source.isPlaying);
                 yield return new WaitForSeconds(0.2f);
-                SceneManager.LoadScene("TitleScene");
-                yield break;
+                if (!lose_event) {
+                    SceneManager.LoadScene("TitleScene");
+                    yield break;
+                }
+                break;
             case EndingType.ESCAPE:
                 CWM.SetBattleMessage1("逃走した！");
                 audio_source.PlayOneShot(escape_sound);

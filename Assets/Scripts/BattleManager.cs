@@ -175,7 +175,14 @@ public class BattleManager
             }
 
             // 牧場に空きがある
-
+            FarmDataManager FDM = new FarmDataManager();
+            FarmData farm_data = FDM.Load();
+            if (farm_data == null) {
+                farm_data = new FarmData();
+            }
+            if (farm_data.num_farm_monsters < 60) {
+                return MM.dead_enemy_monsters[MM.dead_enemy_monsters.Count-1];
+            }
             return null;
         } else {
             return null;

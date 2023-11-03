@@ -47,8 +47,7 @@ public class MonsterManager
         num_dead_player_monsters = 0;
         num_dead_enemy_monsters = 0;
 
-        monster_data = Resources.Load("monster_data") as MonsterData;
-        each_monster_data = Resources.Load("each_monster_data") as EachMonsterData;
+        
         skill_data = Resources.Load("skill_data") as SkillData;
         map_monster_data = Resources.Load("map_monster_data") as MapMonsterData;
 
@@ -115,7 +114,11 @@ public class MonsterManager
     public void SetEnemyMonsters()
     {
         SetActiveCursors();
-        num_enemy_monsters = Random.Range(1,5);
+        if (enemy_monsters.Count == 0) {
+            num_enemy_monsters = Random.Range(1,5);
+        } else {
+            num_enemy_monsters = enemy_monsters.Count;
+        }
         List<List<Vector2>> anchors = new List<List<Vector2>>();
 
         // 敵の配置位置の定義
@@ -135,19 +138,32 @@ public class MonsterManager
             case 4:
                 break;
         }
-
-        for (int i = 0; i < num_enemy_monsters; i++)
-        {
-            EnemyMonster enemy_monster = GenerateMonsterByWeight();
-            enemy_monster.SetImage(enemy_objects[i].GetComponent<RawImage>());
-            enemy_objects[i].SetActive(true);
-            if (num_enemy_monsters < 4)
+        if (enemy_monsters.Count == 0) {
+            for (int i = 0; i < num_enemy_monsters; i++)
             {
-                enemy_objects[i].GetComponent<RectTransform>().anchorMin = anchors[i][0];
-                enemy_objects[i].GetComponent<RectTransform>().anchorMax = anchors[i][1];
+                EnemyMonster enemy_monster = GenerateMonsterByWeight();
+                enemy_monster.SetImage(enemy_objects[i].GetComponent<RawImage>());
+                enemy_objects[i].SetActive(true);
+                if (num_enemy_monsters < 4)
+                {
+                    enemy_objects[i].GetComponent<RectTransform>().anchorMin = anchors[i][0];
+                    enemy_objects[i].GetComponent<RectTransform>().anchorMax = anchors[i][1];
+                }
+                enemy_monster.GetImage().texture = Resources.Load<Texture2D> (enemy_monster.image_path);
+                enemy_monsters.Add(enemy_monster);
             }
-            enemy_monster.GetImage().texture = Resources.Load<Texture2D> (enemy_monster.image_path);
-            enemy_monsters.Add(enemy_monster);
+        }
+        else {
+            for (int i = 0; i < num_enemy_monsters; i++) {
+                enemy_monsters[i].SetImage(enemy_objects[i].GetComponent<RawImage>());
+                enemy_objects[i].SetActive(true);
+                if (num_enemy_monsters < 4)
+                {
+                    enemy_objects[i].GetComponent<RectTransform>().anchorMin = anchors[i][0];
+                    enemy_objects[i].GetComponent<RectTransform>().anchorMax = anchors[i][1];
+                }
+                enemy_monsters[i].GetImage().texture = Resources.Load<Texture2D> (enemy_monsters[i].image_path);
+            }
         }
     }
 
@@ -320,20 +336,24 @@ public class MonsterManager
         player_monster.SetNewStatus(each_monster_data.sheets.Find(sheet=>sheet.name==player_monster.id.ToString()).list.Find(param=>param.lv==player_monster.level));
     }
 
-    public void HandleExpProcess()
+    public bool HandleExpProcess()
     {
         int obtain_exp = 0;
+        // どれかがレベルアップしたらtrue
+        bool level_up = false;
         foreach (EnemyMonster enemy_monster in enemy_monsters) {
             obtain_exp += enemy_monster.exp;
         }
         foreach (PlayerMonster player_monster in player_monsters) {
-            if (!player_monster.isDead) {
+            if (!player_monster.isDead && player_monster.level < 10) {
                 HandleLevelUp(player_monster, obtain_exp);
+                level_up &= player_monster.level_up;
             }
             // if(HandleLevelUp(player_monster, obtain_exp)) {
             //     Debug.Log(player_monster.name_ja + "のレベルがアップ" + player_monster.level);
             // }
         }
+        return level_up;
     }
 
     public PlayerMonster ChangeToPlayerMonster(EnemyMonster enemy_monster)

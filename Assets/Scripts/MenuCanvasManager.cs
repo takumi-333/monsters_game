@@ -62,7 +62,6 @@ public class MenuCanvasManager
         save_data = new SaveMonsterData(MM.player_monsters);
         save_data.SetMonsterData(MM.player_monsters);
         SDM.Save(save_data);
-        Debug.Log("save_path = " + SDM.file_path);
     }
 
     public IEnumerator DisplaySavedMessage()

@@ -14,7 +14,7 @@ public class MapManager : MonoBehaviour
 
     public string map_scene_name = "MapScene";
 
-    private float steps;
+    public float steps;
     private float encount_steps;
     public float speed = 0.02f;
 
@@ -39,6 +39,12 @@ public class MapManager : MonoBehaviour
     public Vector3 player_position;
     // 出入り口
     public AreaDoor area_door;
+
+    // イベント関連
+    public int event1_flg;
+    // private FirstEvent first_event;
+    public int event2_flg;
+    // private SecontEvent second_event;
 
     void Start()
     {
@@ -87,7 +93,7 @@ public class MapManager : MonoBehaviour
                 num_player_monster = 1;
                 MonsterData.Param param = monster_data.sheets[0].list.Find(monster=>monster.id == 1);
                 EachMonsterData.Param u_param = each_monster_data.sheets.Find(sheet=>sheet.name=="1").list.Find(param=>param.lv==1);
-                PlayerMonster player_monster = new  PlayerMonster(u_param, param);
+                PlayerMonster player_monster = new PlayerMonster(u_param, param);
                 player_monsters.Add(player_monster);
             }
             
@@ -107,6 +113,15 @@ public class MapManager : MonoBehaviour
         if (player_position != new Vector3(0,0,0)) PC.transform.position = player_position;
 
         SCM = new StatusCanvasManager(GameObject.Find("StatusCanvas").GetComponent<Canvas>());
+
+        // 初めてのイベント
+        if (event1_flg == 1) {
+            gameObject.AddComponent<FirstEvent>();
+        } 
+        Debug.Log(event2_flg);
+        if (event2_flg == 1) {
+            gameObject.AddComponent<SecondEvent>();
+        }
     }
 
     // Title sceneからload_dataを受け取った時に生成
