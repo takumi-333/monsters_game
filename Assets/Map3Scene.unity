@@ -52183,10 +52183,14 @@ MonoBehaviour:
   map_scene_name: Map3Scene
   steps: 0
   speed: 0.1
-  min_encount_steps: 1000000
-  max_encout_steps: 10000000
+  min_encount_steps: 0
+  max_encout_steps: 0
+  max_num_monsters: 0
   load_data:
     monster_datas: []
+    position: []
+    map_name: 
+    event1_flg: 0
   num_player_monster: 4
   encount_enemy_sound: {fileID: 8300000, guid: 9023eefecd7244847a6454d50396a87c, type: 3}
   PC: {fileID: 0}
@@ -52194,6 +52198,7 @@ MonoBehaviour:
   area_door: {fileID: 0}
   event1_flg: 0
   event2_flg: 0
+  can_encount: 0
 --- !u!82 &1620065696
 AudioSource:
   m_ObjectHideFlags: 0

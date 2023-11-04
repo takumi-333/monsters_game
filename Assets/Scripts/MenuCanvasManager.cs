@@ -46,14 +46,6 @@ public class MenuCanvasManager
     public void HandleSave(MapManager MM)
     {
         if (saving) return;
-        // 位置
-        PlayerPrefs.SetFloat("PosX", MM.player_position.x);
-        PlayerPrefs.SetFloat("PosY", MM.player_position.y);
-        PlayerPrefs.SetFloat("PosZ", MM.player_position.z);
-
-        // map名
-        PlayerPrefs.SetString("MapName", MM.map_scene_name);
-
         // monster info
         // PlayerPrefs.SetInt("NumMonsters", MM.player_monsters.Count);
         // for (int i  = 0; i < MM.player_monsters.Count; i++) {
@@ -61,6 +53,10 @@ public class MenuCanvasManager
         // }
         save_data = new SaveMonsterData(MM.player_monsters);
         save_data.SetMonsterData(MM.player_monsters);
+        save_data.position = new float[3]{MM.player_position.x, MM.player_position.y, MM.player_position.z};
+        Debug.Log(MM.player_position.x);
+        save_data.map_name = MM.map_scene_name;
+        save_data.event1_flg = MM.event1_flg;
         SDM.Save(save_data);
     }
 

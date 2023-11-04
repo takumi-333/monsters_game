@@ -20,6 +20,7 @@ public class MapManager : MonoBehaviour
 
     public float min_encount_steps;
     public float max_encout_steps;
+    public int max_num_monsters;
     public SaveMonsterData load_data;
 
     public int num_player_monster;
@@ -42,9 +43,9 @@ public class MapManager : MonoBehaviour
 
     // イベント関連
     public int event1_flg;
-    // private FirstEvent first_event;
     public int event2_flg;
-    // private SecontEvent second_event;
+
+    public bool can_encount;
 
     void Start()
     {
@@ -77,7 +78,7 @@ public class MapManager : MonoBehaviour
         if (player_monsters == null) {
             // player_monstersのlist生成
             player_monsters = new List<PlayerMonster>();
-            if (load_data != null) {
+            if (load_data.monster_datas != null) {
                 if (load_data.monster_datas.Length == 0) {
                     num_player_monster = 1;
                     MonsterData.Param param = monster_data.sheets[0].list.Find(monster=>monster.id == 1);
@@ -109,16 +110,24 @@ public class MapManager : MonoBehaviour
         }
 
         PC.can_move = true;
+
         // player_positionが存在すれば、そこに配置
-        if (player_position != new Vector3(0,0,0)) PC.transform.position = player_position;
+        if (load_data != null) {
+            Debug.Log(load_data.position.Length);
+            if (load_data.position.Length != 0) PC.transform.position = new Vector3(load_data.position[0], load_data.position[1], load_data.position[2]);
+        }
+        if (player_position != new Vector3(0,0,0)) {
+            Debug.Log("set positon");
+            PC.transform.position = player_position;
+        }
 
         SCM = new StatusCanvasManager(GameObject.Find("StatusCanvas").GetComponent<Canvas>());
 
+        event1_flg = load_data.event1_flg;
         // 初めてのイベント
         if (event1_flg == 1) {
             gameObject.AddComponent<FirstEvent>();
         } 
-        Debug.Log(event2_flg);
         if (event2_flg == 1) {
             gameObject.AddComponent<SecondEvent>();
         }
@@ -172,6 +181,7 @@ public class MapManager : MonoBehaviour
             // データを渡す処理
             gameManager.player_position = player_position;
             gameManager.map_scene_name = map_scene_name;
+            gameManager.max_num_monsters = max_num_monsters;
             gameManager.player_monsters = player_monsters;
 
             // イベントからメソッドを削除
@@ -254,18 +264,15 @@ public class MapManager : MonoBehaviour
                 steps += speed;
                 player_position = PC.transform.position;
             }
-            if (steps >= encount_steps) {
-                Debug.Log("Encount!!");
-                PC.can_move = false;
-                encount_steps = Random.Range(min_encount_steps, max_encout_steps);
-                steps = 0;
-                StartCoroutine("TransBattleScene");
+            if (can_encount) {
+                if (steps >= encount_steps) {
+                    Debug.Log("Encount!!");
+                    PC.can_move = false;
+                    encount_steps = Random.Range(min_encount_steps, max_encout_steps);
+                    steps = 0;
+                    StartCoroutine("TransBattleScene");
+                }
             }
-        }
-
-        if (Input.GetKey(KeyCode.A)) {
-            SaveMonsterData load_data = MCM.GetSaveData();
-            Debug.Log(load_data.monster_datas.Length);
         }
     }
 }

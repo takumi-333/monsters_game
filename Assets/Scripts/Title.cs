@@ -40,19 +40,18 @@ public class Title : MonoBehaviour
     {
 
         // セーブデータの引き出し、Mapシーンへ渡す
-        // マップの名前
-        string map_scene_name = PlayerPrefs.GetString("MapName", "FirstMapScene");
-
-        // playerの位置
-        float posX = PlayerPrefs.GetFloat("PosX", 0f);
-        float posY = PlayerPrefs.GetFloat("PosY", 0f);
-        float posZ = PlayerPrefs.GetFloat("PosZ", 0f);
-        int event1_flg = PlayerPrefs.GetInt("Event1", 1);
-        Vector3 pos = new Vector3(posX, posY, posZ);
 
         // player monstersの情報
         SaveMonsterData load_data = SDM.Load();
+        if (load_data == null) {
+            load_data = new SaveMonsterData(null);
+        }
+        string map_scene_name = load_data.map_name;
+        
+        Debug.Log(" map" + map_scene_name);
+        int event1_flg = load_data.event1_flg;
         SceneManager.sceneLoaded += GameSceneLoaded;
+        
         SceneManager.LoadScene(map_scene_name);
 
         void GameSceneLoaded(Scene next, LoadSceneMode mode)
@@ -62,7 +61,7 @@ public class Title : MonoBehaviour
                 GameObject.FindWithTag("MapManager").GetComponent<MapManager>();
 
             // データを渡す処理
-            gameManager.player_position = pos;
+            // gameManager.player_position = pos;
             // gameManager.player_monster_id_list = monster_id_list;
             gameManager.load_data = load_data;
             gameManager.event1_flg = event1_flg;

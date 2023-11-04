@@ -56,6 +56,8 @@ public class GameManager : MonoBehaviour
     public bool lose_event = false;
     public bool boss_battle = false;
 
+    public int max_num_monsters;
+
     void Start()
     {
         // コンポーネントの取得
@@ -73,7 +75,7 @@ public class GameManager : MonoBehaviour
 
         // 各Managerのセット
         CWM = new CommandWindowManager(command_canvas);
-        MM = new MonsterManager(status_window_canvas, enemy_canvas, map_scene_name);
+        MM = new MonsterManager(status_window_canvas, enemy_canvas, map_scene_name, max_num_monsters);
         SCM = new SecondCanvasManager(second_canvas);
         SComM = new SideCommandManager(side_command_canvas);
         
@@ -335,8 +337,10 @@ public class GameManager : MonoBehaviour
             case EndingType.WIN:
                 audio_source.PlayOneShot(win_sound);
                 CWM.SetBattleMessage1("戦いに勝利した!");
+                Debug.Log("戦いに勝利した表示");
                 MM.HandleExpProcess();
                 StartCoroutine("LevelUpMessage");
+                yield return new WaitForSeconds(0.5f);
                 yield return new WaitUntil(() => !levelUp);
                 CWM.ClearAllMessage();
                 EnemyMonster new_monster = BM.CheckCanAddMonster();

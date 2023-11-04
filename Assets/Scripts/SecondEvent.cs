@@ -56,8 +56,7 @@ public class SecondEvent : MonoBehaviour
         MWM.ClearAll();
         // MM.PC.can_move = true;
         // MM.PC.StartWalking();
-        PlayerPrefs.SetInt("Event1", 0);
-        PlayerPrefs.SetString("MapName", "Map3Scene");
+        
         MoveMapScene();
     }
 

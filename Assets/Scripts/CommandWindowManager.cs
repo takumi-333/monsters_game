@@ -64,6 +64,7 @@ public class CommandWindowManager
     
     public void SetBattleMessage1(string str)
     {
+        Debug.Log(str + "を表示する");
         battle_message1.text = str;
         battle_message1.enabled = true;
     }

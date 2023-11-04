@@ -30,15 +30,17 @@ public class MonsterManager
     public int num_dead_player_monsters;
     public int num_dead_enemy_monsters;
 
+    public int max_num_monsters;
     private Color orange = new Color(238f/255f, 120f/255f, 0);
 
 
 
-    public MonsterManager(Canvas status_window_canvas, Canvas enemy_canvas, string map_scene_name)
+    public MonsterManager(Canvas status_window_canvas, Canvas enemy_canvas, string map_scene_name, int max_num_monsters)
     {
         this.status_window_canvas = status_window_canvas;
         this.enemy_canvas = enemy_canvas;
         this.map_scene_name = map_scene_name;
+        this.max_num_monsters = max_num_monsters;
 
         player_monsters = new List<PlayerMonster>();
         enemy_monsters = new List<EnemyMonster>();
@@ -47,9 +49,11 @@ public class MonsterManager
         num_dead_player_monsters = 0;
         num_dead_enemy_monsters = 0;
 
-        
         skill_data = Resources.Load("skill_data") as SkillData;
         map_monster_data = Resources.Load("map_monster_data") as MapMonsterData;
+        each_monster_data = Resources.Load("each_monster_data") as EachMonsterData;
+        monster_data = Resources.Load("monster_data") as MonsterData;
+        
 
         status_windows = new List<GameObject>();
         enemy_objects = new List<GameObject>();
@@ -99,6 +103,8 @@ public class MonsterManager
         int r = Random.Range(1, total_weight);
         for (int i = 0; i < map_monster_data_sheet.list.Count; i++) {
             if (r < map_monster_data_sheet.list[i].weight) {
+                Debug.Log(map_scene_name);
+                Debug.Log(map_monster_data_sheet.list[i].id);
                 monster_param = each_monster_data.sheets.Find(sheet => sheet.name == map_monster_data_sheet.list[i].id.ToString()).list.Find(param=>param.lv == map_monster_data_sheet.list[i].level);
                 enemy_monster = new EnemyMonster(monster_param, monster_data.sheets[0].list.Find(param=>param.id==map_monster_data_sheet.list[i].id));
                 enemy_monster.friendly = map_monster_data_sheet.list[i].friendly;
@@ -115,7 +121,7 @@ public class MonsterManager
     {
         SetActiveCursors();
         if (enemy_monsters.Count == 0) {
-            num_enemy_monsters = Random.Range(1,5);
+            num_enemy_monsters = Random.Range(1,max_num_monsters+1);
         } else {
             num_enemy_monsters = enemy_monsters.Count;
         }
