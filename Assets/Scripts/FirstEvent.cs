@@ -50,6 +50,7 @@ public class FirstEvent : MonoBehaviour
             EachMonsterData.Param u_param = each_monster_data.sheets.Find(sheet=>sheet.name==id[i].ToString()).list.Find(param=>param.lv==level[i]);
             pmon = new PlayerMonster(u_param, param);
             pmon.name_ja = name[i];
+            pmon.hp = 1;
             first_player_monsters.Add(pmon);
         }
     }
