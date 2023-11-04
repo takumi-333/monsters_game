@@ -19,6 +19,16 @@ public class PlayerController : MonoBehaviour
         LEFT,
     }
 
+    public void StopWalking()
+    {
+        animator.speed = 0;
+    }
+
+    public void StartWalking()
+    {
+        animator.speed = 1;
+    }
+
     private void Start()
     {
         animator = GetComponent<Animator>();
@@ -34,27 +44,24 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKey(KeyCode.UpArrow))//↑キーを押したら
             {
                 direction = Direction.UP;
-                animator.SetInteger("direction",(int)direction);
                 pos.y += speed;
             }
             else if (Input.GetKey(KeyCode.RightArrow))
             {
                 direction = Direction.RIGHT;
-                animator.SetInteger("direction", (int)direction);
                 pos.x += speed;
             }
             else if (Input.GetKey(KeyCode.DownArrow))//↓キーを押したら
             {
                 direction = Direction.DOWN;
-                animator.SetInteger("direction", (int)direction);
                 pos.y -= speed;
             }
             else if (Input.GetKey(KeyCode.LeftArrow))//←キーを押したら
             {
                 direction = Direction.LEFT;
-                animator.SetInteger("direction", (int)direction);
                 pos.x -= speed;
             }
+            animator.SetInteger("direction",(int)direction);
             transform.position = pos;
         }
     }

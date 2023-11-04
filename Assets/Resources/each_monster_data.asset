@@ -1021,3 +1021,563 @@ MonoBehaviour:
       need_exp: 38
       total_exp: 220
       skill_point: 0
+  - name: 10
+    list:
+    - lv: 1
+      hp: 200
+      mp: 100
+      atk: 55
+      def: 55
+      magic: 55
+      sp: 999
+      exp: 1000
+      need_exp: 1500
+      total_exp: 1500
+      skill_point: 10
+    - lv: 2
+      hp: 245
+      mp: 150
+      atk: 75
+      def: 75
+      magic: 75
+      sp: 999
+      exp: 1100
+      need_exp: 1600
+      total_exp: 3100
+      skill_point: 10
+    - lv: 3
+      hp: 300
+      mp: 200
+      atk: 105
+      def: 105
+      magic: 105
+      sp: 999
+      exp: 1200
+      need_exp: 1700
+      total_exp: 4800
+      skill_point: 15
+    - lv: 4
+      hp: 395
+      mp: 250
+      atk: 140
+      def: 140
+      magic: 140
+      sp: 999
+      exp: 1500
+      need_exp: 1900
+      total_exp: 6700
+      skill_point: 10
+    - lv: 5
+      hp: 510
+      mp: 300
+      atk: 200
+      def: 200
+      magic: 200
+      sp: 999
+      exp: 2000
+      need_exp: 2100
+      total_exp: 8800
+      skill_point: 10
+    - lv: 6
+      hp: 710
+      mp: 350
+      atk: 270
+      def: 270
+      magic: 270
+      sp: 999
+      exp: 3000
+      need_exp: 2400
+      total_exp: 11200
+      skill_point: 20
+    - lv: 7
+      hp: 1000
+      mp: 400
+      atk: 350
+      def: 350
+      magic: 350
+      sp: 999
+      exp: 5000
+      need_exp: 3000
+      total_exp: 14200
+      skill_point: 10
+    - lv: 8
+      hp: 1400
+      mp: 450
+      atk: 500
+      def: 500
+      magic: 500
+      sp: 999
+      exp: 9500
+      need_exp: 4000
+      total_exp: 18200
+      skill_point: 10
+    - lv: 9
+      hp: 2000
+      mp: 500
+      atk: 600
+      def: 600
+      magic: 600
+      sp: 999
+      exp: 15000
+      need_exp: 6000
+      total_exp: 24200
+      skill_point: 30
+    - lv: 10
+      hp: 3000
+      mp: 600
+      atk: 750
+      def: 750
+      magic: 750
+      sp: 999
+      exp: 30000
+      need_exp: 9999
+      total_exp: 34199
+      skill_point: 50
+  - name: 11
+    list:
+    - lv: 1
+      hp: 100
+      mp: 200
+      atk: 45
+      def: 40
+      magic: 45
+      sp: 60
+      exp: 150
+      need_exp: 60
+      total_exp: 60
+      skill_point: 5
+    - lv: 2
+      hp: 120
+      mp: 210
+      atk: 55
+      def: 50
+      magic: 55
+      sp: 69
+      exp: 150
+      need_exp: 80
+      total_exp: 140
+      skill_point: 5
+    - lv: 3
+      hp: 140
+      mp: 220
+      atk: 70
+      def: 65
+      magic: 70
+      sp: 75
+      exp: 150
+      need_exp: 100
+      total_exp: 240
+      skill_point: 10
+    - lv: 4
+      hp: 170
+      mp: 240
+      atk: 90
+      def: 80
+      magic: 90
+      sp: 90
+      exp: 150
+      need_exp: 140
+      total_exp: 380
+      skill_point: 5
+    - lv: 5
+      hp: 200
+      mp: 260
+      atk: 110
+      def: 100
+      magic: 110
+      sp: 105
+      exp: 150
+      need_exp: 180
+      total_exp: 560
+      skill_point: 5
+    - lv: 6
+      hp: 250
+      mp: 280
+      atk: 130
+      def: 120
+      magic: 130
+      sp: 126
+      exp: 250
+      need_exp: 320
+      total_exp: 880
+      skill_point: 13
+    - lv: 7
+      hp: 320
+      mp: 320
+      atk: 155
+      def: 140
+      magic: 155
+      sp: 166
+      exp: 250
+      need_exp: 500
+      total_exp: 1380
+      skill_point: 5
+    - lv: 8
+      hp: 415
+      mp: 400
+      atk: 185
+      def: 170
+      magic: 185
+      sp: 180
+      exp: 250
+      need_exp: 750
+      total_exp: 2130
+      skill_point: 5
+    - lv: 9
+      hp: 560
+      mp: 480
+      atk: 215
+      def: 200
+      magic: 215
+      sp: 216
+      exp: 250
+      need_exp: 1000
+      total_exp: 3130
+      skill_point: 22
+    - lv: 10
+      hp: 700
+      mp: 600
+      atk: 250
+      def: 230
+      magic: 250
+      sp: 255
+      exp: 250
+      need_exp: 1500
+      total_exp: 4630
+      skill_point: 10
+  - name: 12
+    list:
+    - lv: 1
+      hp: 200
+      mp: 0
+      atk: 50
+      def: 30
+      magic: 0
+      sp: 10
+      exp: 250
+      need_exp: 150
+      total_exp: 150
+      skill_point: 10
+    - lv: 2
+      hp: 300
+      mp: 0
+      atk: 70
+      def: 40
+      magic: 0
+      sp: 10
+      exp: 250
+      need_exp: 250
+      total_exp: 400
+      skill_point: 10
+    - lv: 3
+      hp: 450
+      mp: 0
+      atk: 100
+      def: 60
+      magic: 0
+      sp: 10
+      exp: 300
+      need_exp: 350
+      total_exp: 750
+      skill_point: 10
+    - lv: 4
+      hp: 550
+      mp: 0
+      atk: 130
+      def: 75
+      magic: 0
+      sp: 10
+      exp: 300
+      need_exp: 500
+      total_exp: 1250
+      skill_point: 10
+    - lv: 5
+      hp: 660
+      mp: 0
+      atk: 170
+      def: 97
+      magic: 0
+      sp: 20
+      exp: 300
+      need_exp: 750
+      total_exp: 2000
+      skill_point: 10
+    - lv: 6
+      hp: 760
+      mp: 0
+      atk: 225
+      def: 117
+      magic: 0
+      sp: 20
+      exp: 450
+      need_exp: 1250
+      total_exp: 3250
+      skill_point: 10
+    - lv: 7
+      hp: 860
+      mp: 0
+      atk: 295
+      def: 140
+      magic: 0
+      sp: 20
+      exp: 450
+      need_exp: 2000
+      total_exp: 5250
+      skill_point: 30
+    - lv: 8
+      hp: 999
+      mp: 0
+      atk: 355
+      def: 180
+      magic: 0
+      sp: 30
+      exp: 450
+      need_exp: 3100
+      total_exp: 8350
+      skill_point: 10
+    - lv: 9
+      hp: 999
+      mp: 0
+      atk: 455
+      def: 220
+      magic: 0
+      sp: 30
+      exp: 600
+      need_exp: 5600
+      total_exp: 13950
+      skill_point: 10
+    - lv: 10
+      hp: 999
+      mp: 0
+      atk: 520
+      def: 250
+      magic: 0
+      sp: 50
+      exp: 800
+      need_exp: 8000
+      total_exp: 21950
+      skill_point: 50
+  - name: 13
+    list:
+    - lv: 1
+      hp: 35
+      mp: 100
+      atk: 35
+      def: 30
+      magic: 35
+      sp: 35
+      exp: 150
+      need_exp: 60
+      total_exp: 60
+      skill_point: 5
+    - lv: 2
+      hp: 45
+      mp: 110
+      atk: 40
+      def: 35
+      magic: 40
+      sp: 40
+      exp: 150
+      need_exp: 80
+      total_exp: 140
+      skill_point: 5
+    - lv: 3
+      hp: 65
+      mp: 120
+      atk: 50
+      def: 45
+      magic: 50
+      sp: 50
+      exp: 200
+      need_exp: 100
+      total_exp: 240
+      skill_point: 5
+    - lv: 4
+      hp: 85
+      mp: 130
+      atk: 70
+      def: 60
+      magic: 70
+      sp: 70
+      exp: 200
+      need_exp: 140
+      total_exp: 380
+      skill_point: 5
+    - lv: 5
+      hp: 125
+      mp: 140
+      atk: 90
+      def: 80
+      magic: 90
+      sp: 90
+      exp: 200
+      need_exp: 180
+      total_exp: 560
+      skill_point: 7
+    - lv: 6
+      hp: 165
+      mp: 150
+      atk: 110
+      def: 100
+      magic: 110
+      sp: 110
+      exp: 400
+      need_exp: 320
+      total_exp: 880
+      skill_point: 7
+    - lv: 7
+      hp: 225
+      mp: 160
+      atk: 150
+      def: 130
+      magic: 150
+      sp: 150
+      exp: 400
+      need_exp: 500
+      total_exp: 1380
+      skill_point: 7
+    - lv: 8
+      hp: 325
+      mp: 170
+      atk: 190
+      def: 160
+      magic: 190
+      sp: 190
+      exp: 400
+      need_exp: 750
+      total_exp: 2130
+      skill_point: 10
+    - lv: 9
+      hp: 430
+      mp: 180
+      atk: 210
+      def: 180
+      magic: 210
+      sp: 210
+      exp: 600
+      need_exp: 1000
+      total_exp: 3130
+      skill_point: 10
+    - lv: 10
+      hp: 550
+      mp: 190
+      atk: 255
+      def: 200
+      magic: 255
+      sp: 255
+      exp: 1000
+      need_exp: 1500
+      total_exp: 4630
+      skill_point: 20
+  - name: 14
+    list:
+    - lv: 1
+      hp: 45
+      mp: 100
+      atk: 15
+      def: 10
+      magic: 8
+      sp: 2
+      exp: 200
+      need_exp: 10
+      total_exp: 10
+      skill_point: 1
+    - lv: 2
+      hp: 85
+      mp: 130
+      atk: 25
+      def: 13
+      magic: 9
+      sp: 4
+      exp: 200
+      need_exp: 30
+      total_exp: 40
+      skill_point: 2
+    - lv: 3
+      hp: 130
+      mp: 150
+      atk: 35
+      def: 16
+      magic: 12
+      sp: 6
+      exp: 200
+      need_exp: 60
+      total_exp: 100
+      skill_point: 3
+    - lv: 4
+      hp: 170
+      mp: 190
+      atk: 55
+      def: 25
+      magic: 20
+      sp: 24
+      exp: 200
+      need_exp: 200
+      total_exp: 300
+      skill_point: 5
+    - lv: 5
+      hp: 240
+      mp: 230
+      atk: 75
+      def: 65
+      magic: 30
+      sp: 45
+      exp: 300
+      need_exp: 500
+      total_exp: 800
+      skill_point: 10
+    - lv: 6
+      hp: 310
+      mp: 270
+      atk: 95
+      def: 125
+      magic: 60
+      sp: 125
+      exp: 300
+      need_exp: 1000
+      total_exp: 1800
+      skill_point: 15
+    - lv: 7
+      hp: 380
+      mp: 320
+      atk: 120
+      def: 185
+      magic: 150
+      sp: 210
+      exp: 300
+      need_exp: 2000
+      total_exp: 3800
+      skill_point: 15
+    - lv: 8
+      hp: 470
+      mp: 370
+      atk: 140
+      def: 250
+      magic: 260
+      sp: 390
+      exp: 700
+      need_exp: 3000
+      total_exp: 6800
+      skill_point: 15
+    - lv: 9
+      hp: 550
+      mp: 400
+      atk: 170
+      def: 300
+      magic: 400
+      sp: 550
+      exp: 700
+      need_exp: 5000
+      total_exp: 11800
+      skill_point: 15
+    - lv: 10
+      hp: 650
+      mp: 450
+      atk: 200
+      def: 360
+      magic: 600
+      sp: 999
+      exp: 1200
+      need_exp: 10000
+      total_exp: 21800
+      skill_point: 30

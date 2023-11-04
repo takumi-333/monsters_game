@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 8
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -123,3 +123,63 @@ MonoBehaviour:
       exp: 50
       image_path: images/cookieman
       weight: 80
+    - id: 10
+      name_ja: "\uFF1F\uFF1F\uFF1F"
+      name_en: ???
+      hp: 99999
+      mp: 999
+      atk: 999
+      def: 999
+      magic: 999
+      sp: 999
+      exp: 999
+      image_path: images/unknown
+      weight: 0
+    - id: 11
+      name_ja: "\u8EE2\u751F\u30AA\u30AF\u30D1\u30FC\u30CA"
+      name_en: new_ocpern
+      hp: 99999
+      mp: 999
+      atk: 999
+      def: 999
+      magic: 999
+      sp: 999
+      exp: 999
+      image_path: images/ocpern
+      weight: 0
+    - id: 12
+      name_ja: "\u8EE2\u751F\u30C9\u30E9\u30D4\u30FC"
+      name_en: new_drape
+      hp: 99999
+      mp: 99999
+      atk: 99999
+      def: 99999
+      magic: 99999
+      sp: 99999
+      exp: 999
+      image_path: images/drapeam
+      weight: 0
+    - id: 13
+      name_ja: "\u8EE2\u751F\u30AF\u30C3\u30AD\u30FC"
+      name_en: new_cookie
+      hp: 99999
+      mp: 99999
+      atk: 99999
+      def: 99999
+      magic: 99999
+      sp: 99999
+      exp: 1000
+      image_path: images/cookieman
+      weight: 0
+    - id: 14
+      name_ja: "\u8EE2\u751F\u30D0\u30BF\u30B8\u30FC\u30F3"
+      name_en: new_butgene
+      hp: 99999
+      mp: 99999
+      atk: 99999
+      def: 99999
+      magic: 99999
+      sp: 99999
+      exp: 1000
+      image_path: images/butgene
+      weight: 1

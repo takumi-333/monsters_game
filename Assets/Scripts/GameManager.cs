@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
     private SideCommandManager SComM;
 
     public List<PlayerMonster> player_monsters;
-    private List<EnemyMonster> enemy_monsters;
+    public List<EnemyMonster> enemy_monsters;
 
     private bool focus_flg;
     private MonsterData monster_data;
@@ -42,18 +42,29 @@ public class GameManager : MonoBehaviour
     public AudioClip win_sound;
     public AudioClip lose_sound;
     public AudioClip escape_sound;
+    public AudioClip boss_bgm;
 
     private bool isCalledEnding;
     private bool levelUp;
+    private bool add_monster;
 
     // MAPに戻る時に必要な情報
     public string map_scene_name;
     public Vector3 player_position;
 
+    public int event2_flg;
+    public bool lose_event = false;
+    public bool boss_battle = false;
+
+    public int max_num_monsters;
+
     void Start()
     {
         // コンポーネントの取得
         audio_source = GetComponent<AudioSource>();
+        if (boss_battle) {
+            audio_source.clip = boss_bgm;
+        }
         audio_source.Play();
         scene_type = SceneType.START;
         command_canvas = GameObject.FindWithTag("CommandCanvas").GetComponent<Canvas>();
@@ -64,10 +75,10 @@ public class GameManager : MonoBehaviour
 
         // 各Managerのセット
         CWM = new CommandWindowManager(command_canvas);
-        MM = new MonsterManager(status_window_canvas, enemy_canvas);
+        MM = new MonsterManager(status_window_canvas, enemy_canvas, map_scene_name, max_num_monsters);
         SCM = new SecondCanvasManager(second_canvas);
         SComM = new SideCommandManager(side_command_canvas);
-        MM.SetEnemyMonsters();
+        
         BM = new BattleManager(MM);
 
         skill_data = Resources.Load("skill_data") as SkillData;
@@ -78,39 +89,25 @@ public class GameManager : MonoBehaviour
         Skill attack1 = new Skill(skill_data.sheets[0].list[1]);
         Skill attack2 = new Skill(skill_data.sheets[0].list[2]);
         Skill attack3 = new Skill(skill_data.sheets[0].list[3]);
-        // if (player_monsters == null) {
-        //     player_monsters = new List<PlayerMonster>();
-        //     int[] player_monster_ids = new int[]{0,1,2,3};
-        //     MonsterData.Param pMonster_param;
-        //     PlayerMonster monster;
-        //     for (int i = 0; i < 4; i++)
-        //     {
-        //         pMonster_param = monster_data.sheets[0].list.Find(monster=> monster.id == player_monster_ids[i]);
-        //         monster = new PlayerMonster(pMonster_param);
-
-        //         // debug用ゆえ後で消す
-        //         monster.AddSkill(default_attack);
-        //         monster.AddSkill(attack1);
-        //         monster.AddSkill(attack2);
-        //         monster.AddSkill(attack3);
-        //         // monster.SetSkills(pMonster_skill_ids[i], skill_data);
-        //         player_monsters.Add(monster);
-        //     }
-        // }
-       
+        
+        MM.SetPlayerMonsters(player_monsters);
+        if (enemy_monsters == null) {
+            enemy_monsters = MM.enemy_monsters;
+        }
+        else {
+            MM.enemy_monsters = enemy_monsters;
+        }
+        MM.SetEnemyMonsters();
         foreach(EnemyMonster emon in MM.enemy_monsters) {
             emon.AddSkill(default_attack);
         }
-
-        MM.SetPlayerMonsters(player_monsters);
-        enemy_monsters = MM.enemy_monsters;
-
 
         wait_time = 0;
         cursor_blink_rate = 0.3f;
         started = false;
         isCalledEnding = false;
         levelUp = false;
+        add_monster = false;
     }
 
     public enum SceneType
@@ -122,6 +119,7 @@ public class GameManager : MonoBehaviour
         SPECIAL,
         ESCAPE,
         PROCESS,
+        TAME,
         END,
     }
 
@@ -163,7 +161,10 @@ public class GameManager : MonoBehaviour
             action.defender.CheckDead();
             action.attacker.CheckDead();
             if (action.defender.isDead) {
-                if (action.defender.isEnemy) action.defender.GetImage().enabled = false;
+                if (action.defender.isEnemy) {
+                    action.defender.GetImage().enabled = false;
+                    MM.dead_enemy_monsters.Add((EnemyMonster)action.defender);
+                }
                 BM.ChangeActionTarget(action.defender);
             }
             yield return new WaitForSeconds(0.5f/SComM.battle_speed);
@@ -283,6 +284,8 @@ public class GameManager : MonoBehaviour
             // データを渡す処理
             gameManager.player_monsters = player_monsters;
             gameManager.player_position = player_position;
+            Debug.Log(event2_flg);
+            gameManager.event2_flg = event2_flg;
 
             // イベントからメソッドを削除
             SceneManager.sceneLoaded -= GameSceneLoaded;
@@ -315,10 +318,9 @@ public class GameManager : MonoBehaviour
                 level_up_text.text += level_up_message[i];
             }
             i++;
-            Debug.Log(i);
             yield return new WaitForSeconds(0.1f);
         }
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(0.75f);
         foreach (TextMeshProUGUI level_up_text in level_up_texts) {
             level_up_text.enabled = false;
         }
@@ -333,15 +335,56 @@ public class GameManager : MonoBehaviour
         audio_source.Stop();
         switch (ending_type) {
             case EndingType.WIN:
+                audio_source.PlayOneShot(win_sound);
                 CWM.SetBattleMessage1("戦いに勝利した!");
+                Debug.Log("戦いに勝利した表示");
                 MM.HandleExpProcess();
                 StartCoroutine("LevelUpMessage");
-                yield return new WaitUntil(() => levelUp);
-                audio_source.PlayOneShot(win_sound);
+                yield return new WaitForSeconds(0.5f);
+                yield return new WaitUntil(() => !levelUp);
+                CWM.ClearAllMessage();
+                EnemyMonster new_monster = BM.CheckCanAddMonster();
+                // 仲間にすることができる
+                if (new_monster != null) {
+                    Debug.Log("monsterが起き上がった！");
+                    new_monster.GetImage().enabled = true;
+                    CWM.SetBattleMessage1(new_monster.name_ja + "を仲間にできます");
+                    CWM.DisplayTameMessage();
+                    CWM.taming = true;
+                    scene_type = SceneType.TAME;
+                    yield return new WaitWhile(() => CWM.taming);
+                    // 「仲間にする」を選択
+                    if (add_monster) {
+                        PlayerMonster new_player_monster = MM.ChangeToPlayerMonster(new_monster);
+                        if (player_monsters.Count < 4) {
+                            player_monsters.Add(new_player_monster);
+                        } else {
+                            FarmDataManager FDM = new FarmDataManager();
+                            FarmData farm_data = FDM.Load();
+                            if (farm_data == null) {
+                                farm_data = new FarmData();
+                            }
+                            farm_data.AddMonsterData(new_player_monster);
+                            FDM.Save(farm_data);
+
+                            SaveDataManager SDM = new SaveDataManager();
+                            SaveMonsterData save_data = new SaveMonsterData(player_monsters);
+                            save_data.SetMonsterData(player_monsters);
+                            SDM.Save(save_data);
+                        }
+                    }
+                    new_monster = null;
+                }
                 break;
             case EndingType.LOSE:
                 CWM.SetBattleMessage1("全滅してしまった...");
                 audio_source.PlayOneShot(lose_sound);
+                yield return new WaitWhile(() => audio_source.isPlaying);
+                yield return new WaitForSeconds(0.2f);
+                if (!lose_event) {
+                    SceneManager.LoadScene("TitleScene");
+                    yield break;
+                }
                 break;
             case EndingType.ESCAPE:
                 CWM.SetBattleMessage1("逃走した！");
@@ -448,6 +491,51 @@ public class GameManager : MonoBehaviour
                 break;
             case SceneType.END:
                 StartCoroutine("FinishBattle");
+                break;
+                
+            case SceneType.TAME:
+                if (CWM.taming) {
+
+                    // 仲間にするcursorの点滅処理
+                    wait_time -= Time.deltaTime;
+                    if (wait_time <= 0){
+                        wait_time = cursor_blink_rate/ SComM.battle_speed;
+                        if (CWM.focus_cursor == null) {
+                            foreach(Image cursor in CWM.tame_cursors) {
+                                cursor.enabled = false;
+                            }
+                        }
+                        if (CWM.focus_cursor != null) {
+                            foreach(Image cursor in CWM.tame_cursors) {
+                                if (cursor != CWM.focus_cursor) {
+                                    cursor.enabled = false;
+                                } else {
+                                    cursor.enabled = !cursor.enabled;
+                                }
+                            }
+                        }
+                    }
+                    mousePos = Input.mousePosition;
+                    CWM.SelectTameMessage(mousePos);
+                    if (Input.GetMouseButtonDown(0) && CWM.focus_cursor != null) {
+                        CWM.taming = false;
+
+                        // この処理はCWMの関数として書くべき
+                        if (CWM.focus_cursor == CWM.tame_cursors[0]) {
+                            add_monster = true;
+                        } else {
+                            add_monster = false;
+                        }
+                    }
+                    if (Input.GetKey(KeyCode.Y)) {
+                        CWM.taming = false;
+                        add_monster = true;
+                    }
+                    if (Input.GetKey(KeyCode.N)) {
+                        CWM.taming = false;
+                        add_monster = false;
+                    }
+                }
                 break;
             default:
                 break;

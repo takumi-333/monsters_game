@@ -36,6 +36,7 @@ public class StatusCanvasManager
         TextMeshProUGUI mp_text;
         TextMeshProUGUI exp_text;
         for (int i = 0; i < player_monsters.Count; i++) {
+            monster_windows[i].SetActive(true);
             monster_image = monster_windows[i].transform.Find("MonsterImage").GetComponent<RawImage>();
             name_text = monster_windows[i].transform.Find("NameText").GetComponent<TextMeshProUGUI>();
             level_text = monster_windows[i].transform.Find("LevelText").GetComponent<TextMeshProUGUI>();
@@ -51,7 +52,7 @@ public class StatusCanvasManager
             exp_text.text = "次の経験値まで " + (player_monsters[i].need_exp - player_monsters[i].now_exp);
         }
         for (int i = player_monsters.Count; i < 4; i++) {
-             monster_windows[i].SetActive(false);
+            monster_windows[i].SetActive(false);
         }
     }
 

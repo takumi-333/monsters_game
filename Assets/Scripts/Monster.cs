@@ -62,6 +62,7 @@ public class Monster
         name_ja = param.name_ja;
 
         // each monster dataから
+        level = u_param.lv;
         max_hp = u_param.hp;
         max_mp = u_param.mp;
         hp = u_param.hp;
