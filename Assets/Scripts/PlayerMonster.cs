@@ -4,52 +4,36 @@ using UnityEngine;
 
 public class PlayerMonster : Monster
 {
-    private int exp_next_level;
-    private int total_exp;
-    private int now_exp;
-    private List<int> exp_table;
+    public int need_exp;
+    public int total_exp;
+    public int now_exp;
+    // private List<int> exp_table;
     private GameObject status_window;
 
+    // battle sceneで使う変数
     public bool isFocus = false;
+    public bool level_up = false;
 
-    public PlayerMonster(MonsterData.Param param) : base (param) {
+
+    public PlayerMonster(EachMonsterData.Param u_param, MonsterData.Param param) : base (u_param, param) {
         isEnemy = false;
-        total_exp = 0;
-        exp_next_level = 50;
+        need_exp = u_param.need_exp;
         now_exp = 0;
+        total_exp = 0;
     }
 
-    public void SetExpNextLevel(int exp_next_level) 
+    public void SetNewStatus(EachMonsterData.Param param)
     {
-        this.exp_next_level = exp_next_level;
-    } 
-
-    public int GetExpNextLevel() 
-    {
-        return exp_next_level;
-    } 
-
-    public void SetTotalExp(int total_exp)
-    {
-        this.total_exp = total_exp;
+        max_hp = param.hp;
+        max_mp = param.mp;
+        hp = param.hp;
+        mp = param.mp;
+        sp = param.sp;
+        atk = param.atk;
+        def = param.def;
+        magic = param.magic;
     }
-
-    public int GetTotalExp() 
-    {
-        return total_exp;
-    } 
-
-    public bool HandleLevelUp(int obtain_exp)
-    {
-        now_exp += obtain_exp;
-        total_exp += obtain_exp;
-        if (now_exp > exp_next_level) {
-            now_exp -= exp_next_level;
-            this.level++;
-            return true;
-        }
-        return false;
-    }
+    
 
     public void SetStatusWindow(GameObject status_window) 
     {
@@ -64,6 +48,5 @@ public class PlayerMonster : Monster
             return status_window;
         }
     }
-
 
 }

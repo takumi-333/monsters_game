@@ -10,9 +10,14 @@ public class CommandWindowManager
     private GameObject command_window;
     private TextMeshProUGUI battle_message1;
     private TextMeshProUGUI battle_message2;
+    private TextMeshProUGUI tame_yes_message;
+    private TextMeshProUGUI tame_no_message;
+    public List<Image> tame_cursors;
+    public Image focus_cursor;
     private List<GameObject> commands;
     public bool displaying;
-    private string[] command_str ;
+    private string[] command_str;
+    public bool taming;
 
     public enum CommandType 
     {
@@ -30,9 +35,19 @@ public class CommandWindowManager
         command_window = canvas.transform.Find("CommandWindow").gameObject;
         battle_message1 = command_window.transform.Find("BattleMessage1").gameObject.GetComponent<TextMeshProUGUI>();
         battle_message2 = command_window.transform.Find("BattleMessage2").gameObject.GetComponent<TextMeshProUGUI>();
-
+        tame_yes_message = command_window.transform.Find("TameYes").gameObject.GetComponent<TextMeshProUGUI>();
+        tame_no_message = command_window.transform.Find("TameNo").gameObject.GetComponent<TextMeshProUGUI>();
+        tame_cursors = new List<Image>();
+        tame_cursors.Add(tame_yes_message.transform.Find("Cursor").gameObject.GetComponent<Image>());
+        tame_cursors.Add(tame_no_message.transform.Find("Cursor").gameObject.GetComponent<Image>());
+        
         battle_message1.enabled = false;
         battle_message2.enabled = false;
+        tame_yes_message.enabled = false;
+        tame_no_message.enabled = false;
+        foreach(Image cursor in tame_cursors) {
+            cursor.enabled = false;
+        }
         displaying = false;
         command_str = new string[]{"こうげき", "どうぐ", "とくぎ", "にげる"};
         commands = new List<GameObject>();
@@ -42,10 +57,14 @@ public class CommandWindowManager
             command.SetActive(false);
             commands.Add(command);
         }
+
+        taming = false;
+        focus_cursor = null;
     }
     
     public void SetBattleMessage1(string str)
     {
+        Debug.Log(str + "を表示する");
         battle_message1.text = str;
         battle_message1.enabled = true;
     }
@@ -94,6 +113,37 @@ public class CommandWindowManager
         displaying = false;
     }
 
+    public void DisplayTameMessage()
+    {
+        battle_message2.enabled = false;
+        tame_yes_message.enabled = true;
+        tame_no_message.enabled = true;
+    }
+
+    public void SelectTameMessage(Vector3 mousePos) {
+        Rect message_size;
+        Vector3 relativeMousePos;
+        if (tame_yes_message.enabled) {
+            message_size = tame_yes_message.gameObject.GetComponent<RectTransform>().rect;
+            relativeMousePos = tame_yes_message.transform.InverseTransformPoint(mousePos);
+            if ((relativeMousePos.x >= message_size.xMin && relativeMousePos.x <= message_size.xMax) &&
+                (relativeMousePos.y >= message_size.yMin && relativeMousePos.y <= message_size.yMax)) {
+                focus_cursor = tame_cursors[0];
+                return;
+            }
+        }
+        if (tame_no_message.enabled) {
+            message_size = tame_no_message.gameObject.GetComponent<RectTransform>().rect;
+            relativeMousePos = tame_no_message.transform.InverseTransformPoint(mousePos);
+            if ((relativeMousePos.x >= message_size.xMin && relativeMousePos.x <= message_size.xMax) &&
+                (relativeMousePos.y >= message_size.yMin && relativeMousePos.y <= message_size.yMax)) {
+                focus_cursor = tame_cursors[1];
+                return;
+            }
+        }
+        focus_cursor = null;
+    }
+
     public void SetCommandsActive(bool b)
     {
         for (int i = 0; i < 4; i++)
@@ -127,134 +177,4 @@ public class CommandWindowManager
         }
         return -1;
     }
-   
-
-
-
-    // public void OpenSkillWindow(Monster monster) 
-    // {
-    //     page = 0;
-    //     canvas.gameObject.SetActive(true);
-    //     toLeft.GetComponent<RawImage>().enabled = false;
-    //     if (monster.skills.Count < 8) {
-    //         for (int i = 0; i < monster.skills.Count; i++) {
-    //             items[i].text = monster.skills[i].param.name_ja;
-    //             items[i].enabled = true;
-    //         }
-    //         for (int i = monster.skills.Count; i < 8; i++) {
-    //             items[i].enabled = false;
-    //         }
-    //         toRight.GetComponent<RawImage>().enabled = false;
-    //     } else {
-    //         for (int i = 0; i < 8; i++) {
-    //             items[i].text = monster.skills[i].param.name_ja;
-    //             items[i].enabled = true;
-    //         }
-    //         toRight.GetComponent<RawImage>().enabled = true;
-    //     }
-    // }
-
-    // public void BackSkillWindow(Vector3 mousePos, Monster monster)
-    // {
-    //     if (toLeft.activeSelf == false || toLeft.activeInHierarchy == false) return;
-    //     Vector3 relativeMousePos = toLeft.transform.InverseTransformPoint(mousePos);
-    //     Vector2 to_left_size = toLeft.GetComponent<RectTransform>().sizeDelta;
-
-    //     // toLeftが押された場合
-    //     if ((relativeMousePos.x >= -(to_left_size.x / 2) && relativeMousePos.x <= to_left_size.x / 2) &&
-    //     (relativeMousePos.y >= -(to_left_size.y / 2) && relativeMousePos.y <= to_left_size.y / 2)
-    //     ) {
-    //         toRight.GetComponent<RawImage>().enabled = true;
-    //         page--;
-
-    //         // 前のページが存在しない場合
-    //         if (page == 0) {
-    //             for (int i = 0; i < 8; i++) {
-    //                 items[i].text = monster.skills[i + 8 * page].param.name_ja;
-    //                 items[i].enabled = true;
-    //             }
-    //             toLeft.GetComponent<RawImage>().enabled = false;
-    //         } else if (page > 0) {
-    //             for (int i = 0; i < 8; i++) {
-    //                 items[i].text = monster.skills[i + 8 * page].param.name_ja;
-    //                 items[i].enabled = true;
-    //             }
-    //             toLeft.GetComponent<RawImage>().enabled = true;
-    //         } else {
-    //             Debug.Log("Error: the page does not exist");
-    //         }
-    //     }
-    // }
-
-    // public void NextSkillWindow(Vector3 mousePos, Monster monster)
-    // {
-    //     if (toRight.activeSelf == false || toRight.activeInHierarchy == false) return;
-    //     Vector3 relativeMousePos = toRight.transform.InverseTransformPoint(mousePos);
-    //     Vector2 to_right_size = toRight.GetComponent<RectTransform>().sizeDelta;
-
-    //     // toRightが押された場合
-    //     if ((relativeMousePos.x >= -(to_right_size.x / 2) && relativeMousePos.x <= to_right_size.x / 2) &&
-    //     (relativeMousePos.y >= -(to_right_size.y / 2) && relativeMousePos.y <= to_right_size.y / 2)
-    //     ) {
-    //         toLeft.GetComponent<RawImage>().enabled = true;
-    //         page++;
-
-    //         // 次のページが必要ない場合
-    //         if (monster.skills.Count < 8 * (page + 1)) {
-    //             for (int i = 0; i < monster.skills.Count - 8 * page; i++) {
-    //                 items[i].text = monster.skills[i + 8 * page].param.name_ja;
-    //                 items[i].enabled = true;
-    //             }
-    //             for (int i = monster.skills.Count - 8 * page; i < 8; i++) {
-    //                 items[i].enabled = false;
-    //             }
-    //             toRight.GetComponent<RawImage>().enabled = false;
-    //         } 
-    //         // 次のページが必要な場合
-    //         else {
-    //             for (int i = 0; i < 8; i++) {
-    //                 items[i].text = monster.skills[i + 8 * page].param.name_ja;
-    //                 items[i].enabled = true;
-    //             }
-    //         }
-    //     }
-    // }
-
-    // public bool CloseWindow(Vector3 mousePos) 
-    // {
-    //     Vector3 relativeMousePos = escape_cross.transform.InverseTransformPoint(mousePos);
-    //     Vector2 escape_cross_size = escape_cross.GetComponent<RectTransform>().sizeDelta;
-    //     if ((relativeMousePos.x >= -(escape_cross_size.x / 2) && relativeMousePos.x <= escape_cross_size.x / 2) &&
-    //     (relativeMousePos.y >= -(escape_cross_size.y / 2) && relativeMousePos.y <= escape_cross_size.y / 2)
-    //     ) {
-    //         canvas.gameObject.SetActive(false);
-    //         return true;
-    //     }
-    //     return false;
-    // }
-
-    // public int SelectSkills(Vector3 mousePos)
-    // {
-    //     // 選ぶ選択肢がない場合
-    //     if (items[0].enabled == false) {
-    //         return -1;
-    //     }
-    //     Vector2 item_block_size = items[0].gameObject.GetComponent<RectTransform>().sizeDelta;
-    //     // Vector3 relativeMousePos = escape_cross.transform.InverseTransformPoint(mousePos);
-    //     Vector3 relativeMousePos;
-    //     for (int i = 0; i < items.Count; i++) {
-    //         if (items[i].enabled == false) {
-    //             continue;
-    //         }
-    //         relativeMousePos = items[i].transform.InverseTransformPoint(mousePos);
-    //         if ((relativeMousePos.x >= -(item_block_size.x / 2) && relativeMousePos.x <= item_block_size.x / 2) &&
-    //         (relativeMousePos.y >= -(item_block_size.y / 2) && relativeMousePos.y <= item_block_size.y / 2)
-    //         ) {
-    //             canvas.gameObject.SetActive(false);
-    //             return 8*page + i;
-    //         }
-    //     }
-    //     return -1;
-        
-    // }
 }

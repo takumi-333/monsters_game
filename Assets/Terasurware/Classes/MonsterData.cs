@@ -16,6 +16,7 @@ public class MonsterData : ScriptableObject
 	[System.SerializableAttribute]
 	public class Param
 	{
+		
 		public int id;
 		public string name_ja;
 		public string name_en;
@@ -23,6 +24,7 @@ public class MonsterData : ScriptableObject
 		public int mp;
 		public int atk;
 		public int def;
+		public int magic;
 		public int sp;
 		public int exp;
 		public string image_path;

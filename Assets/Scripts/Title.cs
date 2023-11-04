@@ -13,6 +13,7 @@ public class Title : MonoBehaviour
     private Animator anim;
     private GameObject FadeCurtain;
     private AudioSource audio_source;
+    private SaveDataManager SDM;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,6 +22,7 @@ public class Title : MonoBehaviour
         anim = FadeCurtain.GetComponent<Animator>();
         screen_size = Screen.GetComponent<RectTransform>().sizeDelta;
         audio_source = GetComponent<AudioSource>();
+        SDM = new SaveDataManager();
     }
 
     // Update is called once per frame
@@ -33,9 +35,39 @@ public class Title : MonoBehaviour
             StartCoroutine("FadeAnimation");
         }
     }
+    
+    private void CallMapScene()
+    {
 
-    void CallMapScene() {
-        SceneManager.LoadScene("MapScene");
+        // セーブデータの引き出し、Mapシーンへ渡す
+
+        // player monstersの情報
+        SaveMonsterData load_data = SDM.Load();
+        if (load_data == null) {
+            load_data = new SaveMonsterData(null);
+        }
+        string map_scene_name = load_data.map_name;
+        
+        Debug.Log(" map" + map_scene_name);
+        int event1_flg = load_data.event1_flg;
+        SceneManager.sceneLoaded += GameSceneLoaded;
+        
+        SceneManager.LoadScene(map_scene_name);
+
+        void GameSceneLoaded(Scene next, LoadSceneMode mode)
+        {
+            // シーン切り替え後のスクリプトを取得
+            var gameManager = 
+                GameObject.FindWithTag("MapManager").GetComponent<MapManager>();
+
+            // データを渡す処理
+            // gameManager.player_position = pos;
+            // gameManager.player_monster_id_list = monster_id_list;
+            gameManager.load_data = load_data;
+            gameManager.event1_flg = event1_flg;
+
+            SceneManager.sceneLoaded -= GameSceneLoaded;
+        }
     }
 
     private IEnumerator FadeAnimation() {

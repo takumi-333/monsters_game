@@ -15,102 +15,171 @@ MonoBehaviour:
   sheets:
   - name: Sheet1
     list:
-    - id: 0
+    - id: 1
       name_ja: "\u30AA\u30AF\u30D1\u30FC\u30CA"
       name_en: ocpern
       hp: 55
       mp: 100
       atk: 3
       def: 12
+      magic: 5
       sp: 20
       exp: 1
       image_path: images/ocpern
       weight: 0
-    - id: 1
+    - id: 2
       name_ja: "\u30ED\u30C3\u30AD\u30FC"
       name_en: rocky
       hp: 10
       mp: 0
       atk: 20
       def: 30
+      magic: 0
       sp: 1
       exp: 100
       image_path: images/rocky
       weight: 50
-    - id: 2
+    - id: 3
       name_ja: "\u30AF\u30C3\u30AD\u30FC\u30DE\u30F3"
       name_en: cokbac
       hp: 30
       mp: 20
       atk: 30
       def: 10
+      magic: 10
       sp: 5
       exp: 50
       image_path: images/cokbac
       weight: 80
-    - id: 3
+    - id: 4
       name_ja: "\u30AF\u30C3\u30AD\u30FC\u30DE\u30F3"
       name_en: cokbal
       hp: 30
       mp: 20
       atk: 10
       def: 10
+      magic: 10
       sp: 30
       exp: 50
       image_path: images/cokbal
       weight: 80
-    - id: 4
+    - id: 5
       name_ja: "\u30AA\u30AF\u30D6\u30EB\u30FC"
       name_en: ocblue
       hp: 65
       mp: 200
       atk: 40
       def: 10
+      magic: 15
       sp: 100
       exp: 70
       image_path: images/ocblue
       weight: 20
-    - id: 5
+    - id: 6
       name_ja: "\u30D0\u30BF\u30B8\u30FC\u30F3"
       name_en: butgene
       hp: 45
       mp: 15
       atk: 17
       def: 5
+      magic: 20
       sp: 20
       exp: 80
       image_path: images/butgene
       weight: 40
-    - id: 6
+    - id: 7
       name_ja: "\u30DE\u30B8\u30C3\u30AF\u30B9\u30BF\u30FC"
       name_en: magicstar
       hp: 40
       mp: 500
       atk: 12
       def: 4
+      magic: 50
       sp: 200
       exp: 150
       image_path: images/magicstar
       weight: 40
-    - id: 7
+    - id: 8
       name_ja: "\u30C9\u30E9\u30D4\u30FC\u30DE\u30F3"
       name_en: drapeam
       hp: 80
       mp: 0
       atk: 45
       def: 20
+      magic: 5
       sp: 3
       exp: 300
       image_path: images/drapeam
       weight: 20
-    - id: 8
+    - id: 9
       name_ja: "\u30AF\u30C3\u30AD\u30FC\u30DE\u30F3"
       name_en: cookieman
       hp: 30
       mp: 20
       atk: 15
       def: 10
+      magic: 10
       sp: 20
       exp: 50
       image_path: images/cookieman
       weight: 80
+    - id: 10
+      name_ja: "\uFF1F\uFF1F\uFF1F"
+      name_en: ???
+      hp: 99999
+      mp: 999
+      atk: 999
+      def: 999
+      magic: 999
+      sp: 999
+      exp: 999
+      image_path: images/unknown
+      weight: 0
+    - id: 11
+      name_ja: "\u8EE2\u751F\u30AA\u30AF\u30D1\u30FC\u30CA"
+      name_en: new_ocpern
+      hp: 99999
+      mp: 999
+      atk: 999
+      def: 999
+      magic: 999
+      sp: 999
+      exp: 999
+      image_path: images/ocpern
+      weight: 0
+    - id: 12
+      name_ja: "\u8EE2\u751F\u30C9\u30E9\u30D4\u30FC"
+      name_en: new_drape
+      hp: 99999
+      mp: 99999
+      atk: 99999
+      def: 99999
+      magic: 99999
+      sp: 99999
+      exp: 999
+      image_path: images/drapeam
+      weight: 0
+    - id: 13
+      name_ja: "\u8EE2\u751F\u30AF\u30C3\u30AD\u30FC"
+      name_en: new_cookie
+      hp: 99999
+      mp: 99999
+      atk: 99999
+      def: 99999
+      magic: 99999
+      sp: 99999
+      exp: 1000
+      image_path: images/cookieman
+      weight: 0
+    - id: 14
+      name_ja: "\u8EE2\u751F\u30D0\u30BF\u30B8\u30FC\u30F3"
+      name_en: new_butgene
+      hp: 99999
+      mp: 99999
+      atk: 99999
+      def: 99999
+      magic: 99999
+      sp: 99999
+      exp: 1000
+      image_path: images/butgene
+      weight: 1

@@ -29,7 +29,7 @@ MonoBehaviour:
       name_ja: "\u30D5\u30EC\u30A4\u30BA"
       name_en: flaze
       loss_hp: 0
-      loss_mp: 30
+      loss_mp: 5
       type: 2
       num_target: 1
       num_attack: 1
@@ -39,7 +39,7 @@ MonoBehaviour:
       name_ja: "\u30A4\u30B0\u30CB\u30C3\u30B7\u30E7\u30F3"
       name_en: ignission
       loss_hp: 0
-      loss_mp: 40
+      loss_mp: 15
       type: 2
       num_target: 1
       num_attack: 1
@@ -49,7 +49,7 @@ MonoBehaviour:
       name_ja: "\u30A4\u30B0\u30CB\u30B9\u30C8\u30FC\u30E0"
       name_en: ignistorm
       loss_hp: 0
-      loss_mp: 50
+      loss_mp: 40
       type: 2
       num_target: 1
       num_attack: 1
@@ -59,7 +59,7 @@ MonoBehaviour:
       name_ja: "\u30B0\u30ED\u30FC\u30E0"
       name_en: glorm
       loss_hp: 0
-      loss_mp: 25
+      loss_mp: 7
       type: 2
       num_target: 1
       num_attack: 1
@@ -69,7 +69,7 @@ MonoBehaviour:
       name_ja: "\u30B0\u30E9\u30C3\u30B7\u30E5"
       name_en: glash
       loss_hp: 0
-      loss_mp: 40
+      loss_mp: 17
       type: 2
       num_target: 1
       num_attack: 1
@@ -79,7 +79,7 @@ MonoBehaviour:
       name_ja: "\u30BF\u30A4\u30BF\u30F3\u30AF\u30E9\u30C3\u30B7\u30E5"
       name_en: titancrash
       loss_hp: 0
-      loss_mp: 55
+      loss_mp: 57
       type: 2
       num_target: 1
       num_attack: 1
@@ -89,7 +89,7 @@ MonoBehaviour:
       name_ja: "\u30A6\u30A3\u30F3\u30C9\u30EB"
       name_en: windl
       loss_hp: 0
-      loss_mp: 20
+      loss_mp: 3
       type: 2
       num_target: 1
       num_attack: 1
@@ -99,7 +99,7 @@ MonoBehaviour:
       name_ja: "\u30B5\u30A4\u30AF\u30ED\u30F3\u30B9"
       name_en: cyclones
       loss_hp: 0
-      loss_mp: 40
+      loss_mp: 10
       type: 2
       num_target: 1
       num_attack: 1
@@ -109,7 +109,7 @@ MonoBehaviour:
       name_ja: "\u30CF\u30EA\u30B1\u30FC\u30F3"
       name_en: hurricane
       loss_hp: 0
-      loss_mp: 55
+      loss_mp: 30
       type: 2
       num_target: 1
       num_attack: 1
@@ -119,7 +119,7 @@ MonoBehaviour:
       name_ja: "\u30A6\u30A7\u30A4\u30D6"
       name_en: wave
       loss_hp: 0
-      loss_mp: 10
+      loss_mp: 5
       type: 2
       num_target: 1
       num_attack: 1
@@ -129,7 +129,7 @@ MonoBehaviour:
       name_ja: "\u30A2\u30AF\u30A2\u30F4\u30A3"
       name_en: aquavi
       loss_hp: 0
-      loss_mp: 40
+      loss_mp: 15
       type: 2
       num_target: 1
       num_attack: 1
@@ -139,7 +139,7 @@ MonoBehaviour:
       name_ja: "\u30AA\u30FC\u30B7\u30E3\u30F3\u30A6\u30A7\u30FC\u30D6"
       name_en: oceanwave
       loss_hp: 0
-      loss_mp: 80
+      loss_mp: 20
       type: 2
       num_target: 1
       num_attack: 1

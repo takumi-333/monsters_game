@@ -27,6 +27,9 @@
 .vs/
 
 Fonts/
+MapPalette/
+MapChip/
+MapChip2/
 
 # Gradle cache directory
 .gradle/
