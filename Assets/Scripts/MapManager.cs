@@ -78,16 +78,18 @@ public class MapManager : MonoBehaviour
         if (player_monsters == null) {
             // player_monstersのlist生成
             player_monsters = new List<PlayerMonster>();
-            if (load_data.monster_datas != null) {
-                if (load_data.monster_datas.Length == 0) {
-                    num_player_monster = 1;
-                    MonsterData.Param param = monster_data.sheets[0].list.Find(monster=>monster.id == 1);
-                    EachMonsterData.Param u_param = each_monster_data.sheets.Find(sheet=>sheet.name=="1").list.Find(param=>param.lv==1);
-                    PlayerMonster player_monster = new  PlayerMonster(u_param, param);
-                    player_monsters.Add(player_monster);
-                }else {
-                    num_player_monster = load_data.monster_datas.Length;
-                    SetPlayerMonsters();
+            if (load_data != null) {
+                if (load_data.monster_datas != null) {
+                    if (load_data.monster_datas.Length == 0) {
+                        num_player_monster = 1;
+                        MonsterData.Param param = monster_data.sheets[0].list.Find(monster=>monster.id == 1);
+                        EachMonsterData.Param u_param = each_monster_data.sheets.Find(sheet=>sheet.name=="1").list.Find(param=>param.lv==1);
+                        PlayerMonster player_monster = new  PlayerMonster(u_param, param);
+                        player_monsters.Add(player_monster);
+                    }else {
+                        num_player_monster = load_data.monster_datas.Length;
+                        SetPlayerMonsters();
+                    }
                 }
             }
             else {
@@ -113,8 +115,11 @@ public class MapManager : MonoBehaviour
 
         // player_positionが存在すれば、そこに配置
         if (load_data != null) {
-            Debug.Log(load_data.position.Length);
-            if (load_data.position.Length != 0) PC.transform.position = new Vector3(load_data.position[0], load_data.position[1], load_data.position[2]);
+            if (load_data.position != null)  {
+                if (load_data.position.Length != 0) {
+                    PC.transform.position = new Vector3(load_data.position[0], load_data.position[1], load_data.position[2]);
+                }
+            }
         }
         if (player_position != new Vector3(0,0,0)) {
             Debug.Log("set positon");
