@@ -10,3 +10,5 @@ This is the first project I've created using Unity, so there are many rough part
 ### How To Play
 
 Please download the Windows or Mac zip file from the release notes and try playing it on your computer.
+(
+The application does not contain any viruses or harmful elements, but please play it at your own discretion and responsibility.)
