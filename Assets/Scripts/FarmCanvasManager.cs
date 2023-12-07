@@ -94,6 +94,7 @@ public class FarmCanvasManager
             player_monster_objects[i].monster = player_monsters[i];
             player_monster_objects[i].inFarm = false;
             player_monster_objects[i].index = i;
+            Debug.Log("assign index:" + player_monster_objects[i].index);
             RawImage monster_image = player_monster_window.transform.Find("MonsterImage").GetComponent<RawImage>();
             TextMeshProUGUI monster_name = player_monster_window.transform.Find("MonsterName").GetComponent<TextMeshProUGUI>();
             TextMeshProUGUI monster_level = player_monster_window.transform.Find("MonsterLevel").GetComponent<TextMeshProUGUI>();
@@ -106,7 +107,11 @@ public class FarmCanvasManager
         }
         for (int i = player_monsters.Count; i< 4; i++) {
             player_monster_objects[i].inFarm = false;
+            player_monster_objects[i].index = i;
             SetEmptyPlayerMonster(i);
+        }
+        for (int i = 0; i < 4; i++) {
+            Debug.Log("index:" + player_monster_objects[i].index);
         }
     }
 
@@ -133,6 +138,7 @@ public class FarmCanvasManager
                 pmon.need_exp = farm_monster_data.need_exp;
                 pmon.now_exp = farm_monster_data.now_exp;
                 pmon.name_ja = farm_monster_data.name_ja;
+                pmon.level = farm_monster_data.level;
                 farm_monster_objects[i].monster = pmon;
 
                 monster_image.texture = Resources.Load<Texture2D>(farm_data.farm_monster_datas[12*page+i].image_path);
@@ -177,6 +183,7 @@ public class FarmCanvasManager
             (relativeMousePos.y >= window_size.yMin && relativeMousePos.y <= window_size.yMax)) 
             {
                 holded_object = player_monster_object;
+                Debug.Log("player monster is picked up\n index = " + holded_object.index + "index = " + player_monster_object.index);
                 holded_object.monster_window.transform.SetAsLastSibling();
                 player_window.transform.SetAsLastSibling();
                 original_pos = player_monster_window.transform.position;
@@ -331,6 +338,13 @@ public class FarmCanvasManager
                     else {
                         PlayerMonster tmp_monster;
                         tmp_monster = holded_object.monster;
+                        Debug.Log("holded index:" + holded_object.index);
+                        Debug.Log("replace index:" + i);
+                        // 表示上の入れ替え
+                        holded_object.monster = player_monster_objects[i].monster;
+                        player_monster_objects[i].monster = tmp_monster;
+
+                        // 実際の手持ちの入れ替え
                         player_monsters[holded_object.index] = player_monsters[i];
                         player_monsters[i] = tmp_monster;
                         return true;
