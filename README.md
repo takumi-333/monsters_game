@@ -14,7 +14,7 @@ Please download the Windows or Mac zip file from the release notes and try playi
 The application does not contain any viruses or harmful elements, but please play it at your own discretion and responsibility.)
 
 ## Image
-<img width="776" alt="スクリーンショット 2024-01-20 18 31 30" src="https://github.com/takumi-333/monsters_game/assets/73085571/93068311-257c-4911-b404-0c2d80d41191">
-<img width="776" alt="スクリーンショット 2024-01-20 18 38 31" src="https://github.com/takumi-333/monsters_game/assets/73085571/6eeb60a4-c8cd-45fc-80cd-be6e7e68d338">
-<img width="776" alt="スクリーンショット 2024-01-20 23 45 07" src="https://github.com/takumi-333/monsters_game/assets/73085571/88e19c40-e199-453a-b1ba-37186a9954f9">
+<img width="388" alt="スクリーンショット 2024-01-20 18 31 30" src="https://github.com/takumi-333/monsters_game/assets/73085571/93068311-257c-4911-b404-0c2d80d41191">
+<img width="388" alt="スクリーンショット 2024-01-20 18 38 31" src="https://github.com/takumi-333/monsters_game/assets/73085571/6eeb60a4-c8cd-45fc-80cd-be6e7e68d338">
+<img width="388" alt="スクリーンショット 2024-01-20 23 45 07" src="https://github.com/takumi-333/monsters_game/assets/73085571/88e19c40-e199-453a-b1ba-37186a9954f9">
 
